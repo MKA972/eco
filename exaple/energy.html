@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoPath Energy & Gas Dashboard</title>
+
+<!-- Fonts & Libraries -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+
+<style>
+/* ========= LIGHT THEME ========= */
+:root {
+  --bg: #f3f6f5;
+  --text-main: #00221c;
+  --text-secondary: #44524f;
+  --primary: #006e55;
+  --primary-light: #00a676;
+  --accent-amber: #f79c29;
+  --card-bg: #ffffff;
+  --border: #d0d8d6;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* ========= DARK THEME ========= */
+[data-theme="dark"] {
+  --bg: #0e141a;
+  --text-main: #f1f3f2;
+  --text-secondary: #a9b5b3;
+  --primary: #00c48c;
+  --primary-light: #00ffb0;
+  --accent-amber: #ffb703;
+  --card-bg: #121c25;
+  --border: #22313b;
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* ========= GLOBAL ========= */
+*{margin:0;padding:0;box-sizing:border-box;transition:background .3s,color .3s,border .3s;}
+body{font-family:"Poppins",sans-serif;background:var(--bg);color:var(--text-main);overflow-x:hidden;line-height:1.6;}
+
+/* HEADER */
+header{background:var(--card-bg);position:fixed;top:0;width:100%;padding:1rem 8%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px var(--shadow);z-index:100;}
+.LOGO{font-weight:700;font-size:1.6rem;color:var(--primary);text-decoration:none;}
+nav a{color:var(--text-main);text-decoration:none;margin:0 1rem;font-weight:500;}
+nav a:hover,nav a.active{color:var(--primary-light);}
+select{background:var(--primary);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;}
+
+/* SWITCH */
+.switch {font-size:17px;position:relative;display:inline-block;width:3.5em;height:2em;margin-left:1rem;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{--background:#b8b6b6;position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:var(--background);transition:.5s;border-radius:25px;}
+.slider:before{position:absolute;content:"";height:1.4em;width:1.4em;border-radius:50%;left:10%;bottom:15%;box-shadow: inset 8px -4px 0px 0px #fff000;background:var(--background);transition:.5s;}
+input:checked + .slider{background-color:#1a6249;}
+input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px -4px 0px 15px #fff000;}
+
+/* HERO */
+.hero{text-align:center;padding:8rem 1rem 4rem;background:linear-gradient(180deg,var(--bg)0%,var(--card-bg)100%);}
+.hero h1{font-size:2.6rem;font-weight:700;color:var(--primary);margin-bottom:1rem;}
+.hero p{max-width:700px;margin:auto;color:var(--text-secondary);font-size:1.1rem;}
+
+/* DASHBOARD */
+.dashboard{padding:4rem 8%;}
+#chartTitle{text-align:center;font-size:1.9rem;font-weight:600;margin-bottom:2rem;color:var(--text-main);}
+
+/* KPI ROW */
+.kpi-row{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-bottom:3rem;}
+.kpi-card{background:var(--card-bg);border-radius:12px;padding:1.2rem 2rem;min-width:220px;text-align:center;box-shadow:0 6px 14px var(--shadow);}
+.kpi-card h4{color:var(--primary-light);margin-bottom:.4rem;}
+.kpi-card p{font-size:1.2rem;font-weight:600;color:var(--text-main);}
+
+/* CHARTS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:2rem;margin-bottom:2rem;}
+.chart-card{background:var(--card-bg);border-radius:14px;box-shadow:0 4px 12px var(--shadow);padding:1.5rem;}
+.chart-card h3{color:var(--text-main);margin-bottom:1rem;font-weight:600;}
+.chart-card canvas{width:100%;height:300px!important;}
+.chart-wide{width:95%;margin:0 auto;margin-top:30px;}
+
+/* MAP */
+#map{height:70vh;width:90%;margin:3rem auto;border-radius:14px;box-shadow:0 6px 20px var(--shadow);border:2px solid var(--border);}
+.map-controls{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;margin:1rem auto;color:var(--text-main);font-weight:500;}
+.map-controls input[type="radio"]{accent-color:var(--primary-light);}
+
+/* FOOTER */
+footer{background:var(--card-bg);text-align:center;padding:2.5rem 8%;color:var(--text-secondary);border-top:1px solid var(--border);}
+footer h2{color:var(--primary);margin-bottom:.5rem;}
+footer p{margin:.4rem 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="#" class="LOGO">EcoPath 🌱</a>
+  <nav>
+    <a href="#charts" class="active">Dashboard</a>
+    <a href="#map">Map</a>
+    <a href="#contact">Contact</a>
+    <a href="./gas.html">Waste</a>
+    <select id="citySelect">
+      <option value="Seoul">Seoul</option>
+      <option value="Busan">Busan</option>
+      <option value="Daegu">Daegu</option>
+      <option value="Daejeon">Daejeon</option>
+      <option value="Gyeonggi">Gyeonggi</option>
+      <option value="Gangwon">Gangwon</option>
+      <option value="NorthGyeongsang">North Gyeongsang</option>
+      <option value="SouthGyeongsang">South Gyeongsang</option>
+      <option value="Jeju">Jeju</option>
+    </select>
+  </nav>
+  <label class="switch">
+    <input type="checkbox" id="themeSwitch">
+    <span class="slider"></span>
+  </label>
+</header>
+
+<section class="hero">
+  <h1>EcoPath Energy & Gas Dashboard</h1>
+  <p>Compare city-level energy consumption to drive sustainable policies.</p>
+</section>
+
+<section class="dashboard" id="charts">
+  <h2 id="chartTitle">Energy Overview (<span id="energyCityLabel">Seoul</span>)</h2>
+
+  <div class="kpi-row">
+    <div class="kpi-card"><h4>Total Energy</h4><p id="totalEnergy">Loading...</p></div>
+    <div class="kpi-card"><h4>Average Usage</h4><p id="avgEnergy">Loading...</p></div>
+    <div class="kpi-card"><h4>Top District</h4><p id="topEnergyDistrict">Loading...</p></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="chart-card"><h3>Electricity Usage (kWh)</h3><canvas id="elecChart"></canvas></div>
+    <div class="chart-card"><h3>Gas Usage (m³)</h3><canvas id="gasChart"></canvas></div>
+  </div>
+
+  <!-- ✅ Wider Line Chart Below -->
+  <div class="chart-card chart-wide">
+    <h3 style="text-align:center;">Energy vs Gas Comparison (Cities)</h3>
+    <canvas id="lineCompareChart" style="height:380px!important;"></canvas>
+  </div>
+</section>
+
+<h2 style="text-align:center;margin-top:60px;">🌍 Nationwide Energy Map</h2>
+<div class="map-controls">
+  <label><input type="radio" name="energy" value="Electricity" checked> Electricity</label>
+  <label><input type="radio" name="energy" value="Gas"> Gas</label>
+</div>
+<div id="map"></div>
+
+<footer id="contact">
+  <h2>EcoPath 🌱</h2>
+  <p>Empowering cities through sustainable energy insights.</p>
+  <p>Email: info@ecopath.org | Phone: +82 10-1234-5678</p>
+</footer>
+
+<script>
+// THEME TOGGLE
+const toggle = document.getElementById("themeSwitch");
+toggle.addEventListener("change", ()=>{
+  document.documentElement.setAttribute("data-theme", toggle.checked ? "dark" : "light");
+});
+
+// MAP
+const map = L.map("map").setView([36.5,127.9],7);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:18}).addTo(map);
+
+let currentMetric = "Electricity";
+let sampleData = [
+  { "District/City":"Seoul","Lat":37.5665,"Lon":126.9780,"Electricity":5000,"Gas":3000 },
+  { "District/City":"Busan","Lat":35.1796,"Lon":129.0756,"Electricity":3000,"Gas":2000 },
+  { "District/City":"Daegu","Lat":35.8714,"Lon":128.6014,"Electricity":2000,"Gas":1500 }
+];
+
+document.getElementsByName("energy").forEach(r=>{
+  r.addEventListener("change", e=>{
+    currentMetric = e.target.value;
+    drawMap();
+  });
+});
+
+function drawMap(){
+  map.eachLayer(l=>{
+    if(l instanceof L.CircleMarker) map.removeLayer(l);
+  });
+  sampleData.forEach(r=>{
+    const val = r[currentMetric];
+    L.circleMarker([r.Lat,r.Lon], {radius:Math.max(3, Math.sqrt(val)/10), color:"#006e55", fillColor:"#006e55", fillOpacity:0.5})
+      .bindPopup(`<b>${r["District/City"]}</b><br>${currentMetric}: ${val.toLocaleString()}`).addTo(map);
+  });
+}
+
+// CHARTS
+let elecChart, gasChart, lineCompareChart;
+
+function loadCharts(){
+  const labels = sampleData.map(r=>r["District/City"]);
+  const elec = sampleData.map(r=>r["Electricity"]);
+  const gas = sampleData.map(r=>r["Gas"]);
+
+  if(elecChart) elecChart.destroy();
+  if(gasChart) gasChart.destroy();
+
+  elecChart = new Chart(document.getElementById("elecChart"),{
+    type:"bar",
+    data:{labels, datasets:[{data:elec, backgroundColor:"#006e55"}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+
+  gasChart = new Chart(document.getElementById("gasChart"),{
+    type:"bar",
+    data:{labels, datasets:[{data:gas, backgroundColor:"#f79c29"}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+
+  const total = elec.reduce((a,b)=>a+b,0);
+  const avg = Math.round(total/elec.length);
+  const top = labels[elec.indexOf(Math.max(...elec))];
+  document.getElementById("totalEnergy").textContent = total + " kWh";
+  document.getElementById("avgEnergy").textContent = avg + " kWh";
+  document.getElementById("topEnergyDistrict").textContent = top;
+}
+
+function loadLineChart(){
+  const labels = sampleData.map(r => r["District/City"]);
+  const elec = sampleData.map(r => r["Electricity"]);
+  const gas = sampleData.map(r => r["Gas"]);
+
+  if (lineCompareChart) lineCompareChart.destroy();
+
+  lineCompareChart = new Chart(document.getElementById("lineCompareChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Electricity (kWh)",
+          data: elec,
+          borderColor: "#00a676",
+          borderWidth: 3,
+          tension: 0.4,
+          pointRadius: 5,
+          pointBackgroundColor: "#00a676",
+          fill: false
+        },
+        {
+          label: "Gas (m³)",
+          data: gas,
+          borderColor: "#f79c29",
+          borderWidth: 3,
+          tension: 0.4,
+          pointRadius: 5,
+          pointBackgroundColor: "#f79c29",
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: "#00221c" }}},
+      scales: {
+        x: { ticks: { color: "#00221c" }},
+        y: { ticks: { color: "#00221c" }}
+      }
+    }
+  });
+}
+
+loadCharts();
+loadLineChart();
+drawMap();
+</script>
+
+</body>
+</html>

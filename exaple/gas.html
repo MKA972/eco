@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoPath | Waste Dashboard</title>
+
+<!-- Fonts & Libraries -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --bg:#f3f6f5; --text-main:#00221c; --primary:#006e55; --primary-light:#00a676;
+  --card-bg:#ffffff; --border:#d0d8d6; --shadow:rgba(0,0,0,0.1);
+}
+[data-theme="dark"] {
+  --bg:#0e141a; --text-main:#f1f3f2; --primary:#00c48c; --primary-light:#00ffb0;
+  --card-bg:#121c25; --border:#22313b; --shadow:rgba(0,0,0,0.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;transition:.2s}
+body{font-family:Poppins;background:var(--bg);color:var(--text-main);overflow-x:hidden}
+
+/* Header */
+header{position:fixed;top:0;width:100%;background:var(--card-bg);padding:1rem 8%;display:flex;
+justify-content:space-between;align-items:center;box-shadow:0 2px 10px var(--shadow);z-index:100}
+.LOGO{font-size:1.6rem;color:var(--primary);font-weight:700;text-decoration:none}
+nav a{margin:0 1rem;color:var(--text-main);text-decoration:none;font-weight:500}
+nav a:hover,nav .active{color:var(--primary-light)}
+select{background:var(--primary);color:#fff;padding:8px 14px;border:none;border-radius:8px;font-weight:600}
+
+/* Theme switch */
+.switch{position:relative;width:3.5em;height:2em;margin-left:1rem}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#b8b6b6;border-radius:25px;cursor:pointer}
+.slider:before{content:"";position:absolute;height:1.4em;width:1.4em;border-radius:50%;left:10%;bottom:15%;background:#fff;transition:.5s}
+input:checked + .slider{background:#1a6249}
+input:checked + .slider:before{transform:translateX(100%)}
+
+/* Layout */
+.hero{text-align:center;padding:7rem 1rem 3rem}
+.hero h1{font-size:2.3rem;color:var(--primary);margin-bottom:.3rem}
+.dashboard{padding:2rem 7%}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.kpi{background:var(--card-bg);padding:1.2rem;border-radius:14px;box-shadow:0 4px 12px var(--shadow);text-align:center}
+.kpi h4{color:var(--primary-light);font-size:.9rem}
+.kpi p{font-size:1.3rem;font-weight:600}
+.chart-area{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:1.8rem}
+.chart-box{background:var(--card-bg);padding:1.2rem;border-radius:14px;box-shadow:0 4px 12px var(--shadow)}
+#map{height:70vh;width:90%;margin:3rem auto;border-radius:14px;box-shadow:0 6px 20px var(--shadow);border:2px solid var(--border)}
+footer{text-align:center;padding:3rem 7%;background:var(--card-bg);margin-top:2rem}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="#" class="LOGO">EcoPath 🌱</a>
+  <nav>
+    <a class="active">Dashboard</a>
+    <a href="#map">Map</a>
+    <a href="./energy.html">Energy&Gas</a>
+
+    <select id="citySelect">
+      <option>Seoul</option>
+      <option>Busan</option>
+      <option>Daegu</option>
+      <option>Daejeon</option>
+      <option>Gyeonggi</option>
+      <option>Gangwon</option>
+      <option>NorthGyeongsang</option>
+      <option>SouthGyeongsang</option>
+      <option>Jeju</option>
+    </select>
+  </nav>
+
+  <label class="switch">
+    <input type="checkbox" id="themeSwitch"><span class="slider"></span>
+  </label>
+</header>
+
+<section class="hero">
+  <h1>Waste Analytics Dashboard</h1>
+  <p>District waste patterns and recycling insights</p>
+</section>
+
+<section class="dashboard" id="charts">
+<h2>City: <span id="cityName">Seoul</span></h2>
+
+<div class="kpi-grid">
+  <div class="kpi"><h4>Avg / District</h4><p id="kpiAvg">-</p></div>
+  <div class="kpi"><h4>Top District</h4><p id="kpiTopDistrict">-</p></div>
+  <div class="kpi"><h4>Recycle Rate</h4><p id="kpiRecycle">-</p></div>
+</div>
+
+<div class="chart-area">
+  <div class="chart-box"><h3>Waste by District</h3><canvas id="barChart"></canvas></div>
+  <div class="chart-box"><h3>Weekly Trend</h3><canvas id="lineChart"></canvas></div>
+  <div class="chart-box"><h3>Waste Composition</h3><canvas id="pieChart"></canvas></div>
+</div>
+</section>
+
+<h2 style="text-align:center;margin-top:60px;">🌍 Nationwide Waste Map</h2>
+<div id="map"></div>
+
+<footer><p>EcoPath 🌱 — Smart Sustainability Intelligence</p></footer>
+
+<script>
+// Data holder
+let trashData = {};
+
+// CSV loader for any city
+async function loadCityCSV(city){
+  const fileMap = {
+    "Seoul":"seoul_waste.csv", "Busan":"busan.csv", "Daegu":"daegu.csv",
+    "Daejeon":"daejeon.csv", "Gyeonggi":"Gyeonggi.csv", "Gangwon":"gangwon.csv",
+    "NorthGyeongsang":"northgyeongsang.csv", "SouthGyeongsang":"southgyeongsang.csv",
+    "Jeju":"jeju.csv"
+  };
+  const file = fileMap[city]; if(!file) return;
+  const res = await fetch(`csv/${file}`);
+  const text = await res.text();
+  const rows = text.trim().split("\n").slice(1);
+
+  trashData[city] = rows.map(r=>{
+    const [district,lat,lon,plastic,food,metal,glass]=r.split(",");
+    const total = +plastic + +food + +metal + +glass;
+    return {
+      district, lat:+lat, lon:+lon, plastic:+plastic, food:+food, metal:+metal, glass:+glass,
+      total, weekly:[total*.14,total*.15,total*.18,total*.16,total*.14,total*.12,total*.11]
+    };
+  });
+}
+
+// Charts
+let barChart,lineChart,pieChart;
+const BC = document.getElementById("barChart");
+const LC = document.getElementById("lineChart");
+const PC = document.getElementById("pieChart");
+
+function renderDashboard(city){
+  const d = trashData[city]; if(!d) return;
+  document.getElementById("cityName").textContent = city;
+  const labels = d.map(x=>x.district);
+  const totals = d.map(x=>x.total);
+  const avg = Math.round(totals.reduce((a,b)=>a+b,0)/d.length);
+  const top = labels[totals.indexOf(Math.max(...totals))];
+  const recycleRate = Math.round(
+    d.reduce((s,x)=>s+x.plastic+x.glass+x.metal,0) /
+    d.reduce((s,x)=>s+x.total,0) *100
+  );
+  kpiAvg.textContent = avg+" kg/day";
+  kpiTopDistrict.textContent = top;
+  kpiRecycle.textContent = recycleRate+"%";
+
+  barChart?.destroy();
+  barChart = new Chart(BC,{
+    type:"bar",
+    data:{labels,datasets:[{data:totals,backgroundColor:"#00a676"}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+
+  const weekly=[0,1,2,3,4,5,6].map(i=>d.map(x=>x.weekly[i]).reduce((a,b)=>a+b,0));
+  lineChart?.destroy();
+  lineChart = new Chart(LC,{
+    type:"line",
+    data:{labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    datasets:[{data:weekly,borderColor:"#006e55",borderWidth:3,tension:.4}]},
+    options:{plugins:{legend:{display:false}}}
+  });
+
+  const sums=["plastic","food","glass","metal"].map(k=>d.reduce((a,b)=>a+b[k],0));
+  pieChart?.destroy();
+  pieChart = new Chart(PC,{
+    type:"pie",
+    data:{labels:["Plastic","Food","Glass","Metal"],datasets:[{data:sums,backgroundColor:["#00a676","#8bc34a","#cddc39","#ff9800"]}]}
+  });
+}
+
+// Map
+const map = L.map("map").setView([36.5,127.9],7);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",{maxZoom:18}).addTo(map);
+
+function drawMap(city){
+  map.eachLayer(l=>{if(l instanceof L.CircleMarker) map.removeLayer(l)});
+  trashData[city].forEach(p=>{
+    L.circleMarker([p.lat,p.lon],{
+      radius:Math.max(6,Math.sqrt(p.total)/25), color:"#006e55",
+      fillColor:"#00a676", fillOpacity:.6
+    }).bindPopup(`<b>${p.district}</b><br>${p.total.toLocaleString()} kg/day`).addTo(map);
+  });
+}
+
+// City change
+document.getElementById("citySelect").addEventListener("change",async e=>{
+  const city=e.target.value;
+  if(!trashData[city]) await loadCityCSV(city);
+  renderDashboard(city);
+  drawMap(city);
+});
+
+// Theme toggle
+document.getElementById("themeSwitch").addEventListener("change",e=>{
+  document.documentElement.setAttribute("data-theme", e.target.checked?"dark":"light");
+});
+
+// Init
+(async()=>{
+  await loadCityCSV("Seoul");
+  renderDashboard("Seoul");
+  drawMap("Seoul");
+})();
+</script>
+</body>
+</html>
