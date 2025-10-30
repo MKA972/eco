@@ -1,6 +1,6 @@
-District/City,Plastic,Food Waste,Iron Waste,Glass
-Chuncheon,400,600,200,100
-Gangneung,350,550,180,90
-Wonju,500,750,250,120
-Donghae,300,450,150,80
-Taebaek,250,400,120,70
+District,Lat,Lon,Plastic,Paper,Glass,Metal,General,Bio
+Chuncheon,37.8813,127.7298,900,650,220,160,1100,400
+Gangneung,37.7519,128.8761,950,700,240,170,1150,430
+Wonju,37.3422,127.9190,980,720,250,180,1200,450
+Sokcho,38.2070,128.5918,850,600,210,150,1000,380
+Donghae,37.5247,129.1142,880,620,225,160,1050,400

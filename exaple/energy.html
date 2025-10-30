@@ -84,10 +84,90 @@ input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px
 .map-controls{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;margin:1rem auto;color:var(--text-main);font-weight:500;}
 .map-controls input[type="radio"]{accent-color:var(--primary-light);}
 
-/* FOOTER */
-footer{background:var(--card-bg);text-align:center;padding:2.5rem 8%;color:var(--text-secondary);border-top:1px solid var(--border);}
-footer h2{color:var(--primary);margin-bottom:.5rem;}
-footer p{margin:.4rem 0;}
+
+/* ================= FOOTER ================= */
+.eco-footer {
+  background: var(--card-bg);
+  border-top: 2px solid var(--border);
+  padding: 40px 8%;
+  margin-top: 60px;
+  color: var(--text-main);
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+/* Footer Sections */
+.footer-section h3 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+
+.footer-section a,
+.footer-section p {
+  display: block;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer-section a:hover {
+  color: var(--primary-light);
+}
+
+.footer-logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Official Store Buttons */
+.footer-apps-real {
+  margin-top: 18px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.store-badge-img {
+  height: 48px;
+  transition: .25s ease;
+  cursor: pointer;
+}
+
+.store-badge-img:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* Social icons */
+.footer-social a {
+  display: inline-block;
+  font-size: 1.3rem;
+  margin-right: 10px;
+  color: var(--text-main);
+}
+
+.footer-social a:hover {
+  color: var(--primary-light);
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+
+
 </style>
 </head>
 <body>
@@ -99,16 +179,14 @@ footer p{margin:.4rem 0;}
     <a href="#map">Map</a>
     <a href="#contact">Contact</a>
     <a href="./gas.html">Waste</a>
-    <select id="citySelect">
-      <option value="Seoul">Seoul</option>
-      <option value="Busan">Busan</option>
-      <option value="Daegu">Daegu</option>
-      <option value="Daejeon">Daejeon</option>
-      <option value="Gyeonggi">Gyeonggi</option>
-      <option value="Gangwon">Gangwon</option>
-      <option value="NorthGyeongsang">North Gyeongsang</option>
-      <option value="SouthGyeongsang">South Gyeongsang</option>
-      <option value="Jeju">Jeju</option>
+  <select id="citySelect">
+      <option>Seoul</option>
+      <option>Busan</option>
+      <option>Daegu</option>
+      <option>Daejeon</option>
+      <option>Gyeonggi</option>
+      <option>Gangwon</option>
+      <option>Jeju</option>
     </select>
   </nav>
   <label class="switch">
@@ -150,127 +228,168 @@ footer p{margin:.4rem 0;}
 </div>
 <div id="map"></div>
 
-<footer id="contact">
-  <h2>EcoPath 🌱</h2>
-  <p>Empowering cities through sustainable energy insights.</p>
-  <p>Email: info@ecopath.org | Phone: +82 10-1234-5678</p>
+<footer class="eco-footer">
+  <div class="footer-container">
+
+    <!-- Logo + tagline -->
+    <div class="footer-section">
+      <h2 class="footer-logo">EcoPath 🌱</h2>
+      <p>Empowering sustainable cities through smart waste & energy analytics.</p>
+
+      <!-- Official app download badges -->
+      <div class="footer-apps-real">
+        <a href="https://apps.apple.com" target="_blank">
+          <img class="store-badge-img" 
+            src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+            alt="Download on the App Store">
+        </a>
+        <a href="https://play.google.com" target="_blank">
+          <img class="store-badge-img"
+            src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+            alt="Get it on Google Play">
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="footer-section">
+      <h3>Navigation</h3>
+      <a href="index.html">Dashboard</a>
+      <a href="energy.html">Energy & Gas</a>
+      <a href="gas.html">Waste & Recycling</a>
+      <a href="login.html">Admin Login</a>
+    </div>
+
+    <!-- Contact -->
+    <div class="footer-section">
+      <h3>Contact</h3>
+      <p>📞 +82 10-0000-0000</p>
+      <p>✉️ support@ecopath.com</p>
+      <p>🌍 Seoul, South Korea</p>
+
+      <!-- Social icons -->
+      <div class="footer-social">
+        <a href="#" target="_blank"></a>
+        <a href="#" target="_blank"></a>
+        <a href="#" target="_blank"></a>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="footer-bottom">
+    © 2025 EcoPath. All rights reserved.
+  </p>
 </footer>
 
+
+
 <script>
-// THEME TOGGLE
+/* ========= THEME SWITCH ========= */
 const toggle = document.getElementById("themeSwitch");
-toggle.addEventListener("change", ()=>{
+toggle.addEventListener("change", () => {
   document.documentElement.setAttribute("data-theme", toggle.checked ? "dark" : "light");
 });
 
-// MAP
-const map = L.map("map").setView([36.5,127.9],7);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:18}).addTo(map);
-
-let currentMetric = "Electricity";
-let sampleData = [
-  { "District/City":"Seoul","Lat":37.5665,"Lon":126.9780,"Electricity":5000,"Gas":3000 },
-  { "District/City":"Busan","Lat":35.1796,"Lon":129.0756,"Electricity":3000,"Gas":2000 },
-  { "District/City":"Daegu","Lat":35.8714,"Lon":128.6014,"Electricity":2000,"Gas":1500 }
-];
-
-document.getElementsByName("energy").forEach(r=>{
-  r.addEventListener("change", e=>{
-    currentMetric = e.target.value;
-    drawMap();
-  });
-});
-
-function drawMap(){
-  map.eachLayer(l=>{
-    if(l instanceof L.CircleMarker) map.removeLayer(l);
-  });
-  sampleData.forEach(r=>{
-    const val = r[currentMetric];
-    L.circleMarker([r.Lat,r.Lon], {radius:Math.max(3, Math.sqrt(val)/10), color:"#006e55", fillColor:"#006e55", fillOpacity:0.5})
-      .bindPopup(`<b>${r["District/City"]}</b><br>${currentMetric}: ${val.toLocaleString()}`).addTo(map);
-  });
-}
-
-// CHARTS
+/* ========= GLOBAL VARIABLES ========= */
 let elecChart, gasChart, lineCompareChart;
+const citySelect = document.getElementById("citySelect");
+const chartTitle = document.getElementById("chartTitle");
+const energyCityLabel = document.getElementById("energyCityLabel");
 
-function loadCharts(){
-  const labels = sampleData.map(r=>r["District/City"]);
-  const elec = sampleData.map(r=>r["Electricity"]);
-  const gas = sampleData.map(r=>r["Gas"]);
+/* ========= RENDER CHARTS ========= */
+function renderCharts(monthly) {
+  const labels = monthly.map(m => m.month);
+  const elec = monthly.map(m => m.average.kwh);
+  const gas = monthly.map(m => m.average.m3);
 
-  if(elecChart) elecChart.destroy();
-  if(gasChart) gasChart.destroy();
+  const ctxElec = document.getElementById("elecChart");
+  const ctxGas = document.getElementById("gasChart");
+  const ctxLine = document.getElementById("lineCompareChart");
 
-  elecChart = new Chart(document.getElementById("elecChart"),{
-    type:"bar",
-    data:{labels, datasets:[{data:elec, backgroundColor:"#006e55"}]},
-    options:{plugins:{legend:{display:false}}}
-  });
-
-  gasChart = new Chart(document.getElementById("gasChart"),{
-    type:"bar",
-    data:{labels, datasets:[{data:gas, backgroundColor:"#f79c29"}]},
-    options:{plugins:{legend:{display:false}}}
-  });
-
-  const total = elec.reduce((a,b)=>a+b,0);
-  const avg = Math.round(total/elec.length);
-  const top = labels[elec.indexOf(Math.max(...elec))];
-  document.getElementById("totalEnergy").textContent = total + " kWh";
-  document.getElementById("avgEnergy").textContent = avg + " kWh";
-  document.getElementById("topEnergyDistrict").textContent = top;
-}
-
-function loadLineChart(){
-  const labels = sampleData.map(r => r["District/City"]);
-  const elec = sampleData.map(r => r["Electricity"]);
-  const gas = sampleData.map(r => r["Gas"]);
-
+  if (elecChart) elecChart.destroy();
+  if (gasChart) gasChart.destroy();
   if (lineCompareChart) lineCompareChart.destroy();
 
-  lineCompareChart = new Chart(document.getElementById("lineCompareChart"), {
+  elecChart = new Chart(ctxElec, {
+    type: "bar",
+    data: { labels, datasets: [{ label:"Electricity (kWh)", data: elec, backgroundColor:"#00a676" }] },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  gasChart = new Chart(ctxGas, {
+    type: "bar",
+    data: { labels, datasets: [{ label:"Gas (m³)", data: gas, backgroundColor:"#f79c29" }] },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  lineCompareChart = new Chart(ctxLine, {
     type: "line",
     data: {
       labels,
       datasets: [
-        {
-          label: "Electricity (kWh)",
-          data: elec,
-          borderColor: "#00a676",
-          borderWidth: 3,
-          tension: 0.4,
-          pointRadius: 5,
-          pointBackgroundColor: "#00a676",
-          fill: false
-        },
-        {
-          label: "Gas (m³)",
-          data: gas,
-          borderColor: "#f79c29",
-          borderWidth: 3,
-          tension: 0.4,
-          pointRadius: 5,
-          pointBackgroundColor: "#f79c29",
-          fill: false
-        }
+        { label:"Electricity (kWh)", data: elec, borderColor:"#00a676", borderWidth:3, tension:.4 },
+        { label:"Gas (m³)", data: gas, borderColor:"#f79c29", borderWidth:3, tension:.4 }
       ]
     },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: "#00221c" }}},
-      scales: {
-        x: { ticks: { color: "#00221c" }},
-        y: { ticks: { color: "#00221c" }}
-      }
-    }
+    options: { responsive:true }
   });
+
+  // KPI values
+  const total = elec.reduce((a,b)=>a+b,0);
+  const avg = Math.round(total / elec.length);
+  const topDistrict = "Seoul Avg (API)";
+  
+  document.getElementById("totalEnergy").textContent = total + " kWh";
+  document.getElementById("avgEnergy").textContent = avg + " kWh";
+  document.getElementById("topEnergyDistrict").textContent = topDistrict;
 }
 
-loadCharts();
-loadLineChart();
-drawMap();
+/* ========= LOAD DATA ========= */
+async function loadData(city) {
+  energyCityLabel.textContent = city;
+
+  if (city !== "Seoul") {
+    chartTitle.innerText = `${city} — API Coming Soon`;
+    console.warn(`API not available for ${city}`);
+    return; 
+  }
+
+  try {
+    const res = await fetch("http://localhost:8000/api/smart-meters/714aa86b-55ae-448e-9220-4d3c205e9a06/readings/monthly");
+    const json = await res.json();
+
+    // When API fails / empty
+    if (!json.data || !json.data.monthly) {
+      chartTitle.innerText = `${city} — API returned no data`;
+      console.warn("API returned empty dataset");
+      return;
+    }
+
+    chartTitle.innerText = `${city} — Live API Data`;
+    renderCharts(json.data.monthly);
+
+  } catch (err) {
+    console.error("API error: ", err);
+    chartTitle.innerText = `Seoul — API Error`;
+  }
+}
+
+/* ========= MAP ========= */
+const map = L.map("map").setView([36.5,127.9], 7);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { maxZoom:18 }).addTo(map);
+
+// Temporary markers
+L.circleMarker([37.5665,126.9780],{radius:10,color:"#00a676"}).bindPopup("Seoul").addTo(map);
+
+/* ========= COMMENTING OUT MOCK DATA ========= */
+// const mockData = [...];  // ❌ NOT USED NOW
+
+/* ========= EVENT LISTENERS ========= */
+citySelect.addEventListener("change", e => loadData(e.target.value));
+
+/* ========= INIT ========= */
+loadData("Seoul");
 </script>
 
 </body>

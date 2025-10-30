@@ -242,8 +242,9 @@ body {
   font-weight: 700;
   cursor: pointer;
   background: linear-gradient(90deg, var(--accent-green), #00ffaa);
-  color: #0b1722;
+  color: #001915;
   transition: opacity 0.2s ease;
+  
 }
 
 .login-form button:hover,
