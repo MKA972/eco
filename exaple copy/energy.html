@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoPath Energy & Gas Dashboard</title>
+
+<!-- Fonts & Libraries -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+/* ========= LIGHT THEME ========= */
+:root {
+  --bg: #f3f6f5;
+  --text-main: #00221c;
+  --text-secondary: #44524f;
+  --primary: #006e55;
+  --primary-light: #00a676;
+  --accent-amber: #f79c29;
+  --card-bg: #ffffff;
+  --border: #d0d8d6;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* ========= DARK THEME ========= */
+[data-theme="dark"] {
+  --bg: #0e141a;
+  --text-main: #f1f3f2;
+  --text-secondary: #a9b5b3;
+  --primary: #00c48c;
+  --primary-light: #00ffb0;
+  --accent-amber: #ffb703;
+  --card-bg: #121c25;
+  --border: #22313b;
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* ========= GLOBAL ========= */
+*{margin:0;padding:0;box-sizing:border-box;transition:background .3s,color .3s,border .3s;}
+body{font-family:"Poppins",sans-serif;background:var(--bg);color:var(--text-main);overflow-x:hidden;line-height:1.6;}
+
+header{
+  background:var(--card-bg);position:fixed;top:0;width:100%;padding:1rem 8%;
+  display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px var(--shadow);z-index:100;
+}
+.LOGO{font-weight:700;font-size:1.6rem;color:var(--primary);text-decoration:none;}
+nav a{color:var(--text-main);text-decoration:none;margin:0 1rem;font-weight:500;}
+nav a:hover{color:var(--primary-light);}
+select{background:var(--primary);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;margin-left:.6rem;}
+
+.switch{font-size:17px;position:relative;display:inline-block;width:3.5em;height:2em;margin-left:1rem;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{--background:#b8b6b6;position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:var(--background);transition:.5s;border-radius:25px;}
+.slider:before{position:absolute;content:"";height:1.4em;width:1.4em;border-radius:50%;left:10%;bottom:15%;box-shadow: inset 8px -4px 0px 0px #fff000;background:var(--background);transition:.5s;}
+input:checked + .slider{background-color:#1a6249;}
+input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px -4px 0px 15px #fff000;}
+
+.hero{text-align:center;padding:8rem 1rem 4rem;background:linear-gradient(180deg,var(--bg)0%,var(--card-bg)100%);}
+.hero h1{font-size:2.6rem;font-weight:700;color:var(--primary);margin-bottom:1rem;}
+.hero p{max-width:700px;margin:auto;color:var(--text-secondary);font-size:1.1rem;}
+
+.dashboard{padding:4rem 8%;}
+#chartTitle{text-align:center;font-size:1.9rem;font-weight:600;margin-bottom:2rem;color:var(--text-main);}
+
+.kpi-row{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-bottom:3rem;}
+.kpi-card{background:var(--card-bg);border-radius:12px;padding:1.2rem 2rem;min-width:220px;text-align:center;box-shadow:0 6px 14px var(--shadow);}
+.kpi-card h4{color:var(--primary-light);margin-bottom:.4rem;}
+.kpi-card p{font-size:1.2rem;font-weight:600;color:var(--text-main);}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:2rem;margin-bottom:2rem;}
+.chart-card{background:var(--card-bg);border-radius:14px;box-shadow:0 4px 12px var(--shadow);padding:1.5rem;}
+.chart-card h3{color:var(--text-main);margin-bottom:1rem;font-weight:600;}
+.chart-card canvas{width:100%;height:300px!important;}
+.chart-wide{width:95%;margin:0 auto;margin-top:30px;}
+
+#map{height:70vh;width:90%;margin:3rem auto;border-radius:14px;box-shadow:0 6px 20px var(--shadow);border:2px solid var(--border);}
+.map-controls{text-align:center;font-weight:600;margin:1rem;}
+.map-controls input[type="radio"]{accent-color:var(--primary-light);}
+
+.eco-footer{background:var(--card-bg);border-top:2px solid var(--border);padding:40px 8%;margin-top:60px;}
+.footer-container{display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px;}
+.footer-logo{font-size:1.6rem;font-weight:700;color:var(--primary);}
+.footer-bottom{text-align:center;margin-top:25px;font-size:.85rem;opacity:.7;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="#" class="LOGO" data-key="logo">EcoPath 🌱</a>
+
+  <nav>
+    <a href="#charts" data-key="dashboard">Dashboard</a>
+    <a href="#map" data-key="map">Map</a>
+    <a href="#contact" data-key="contact">Contact</a>
+    <a href="./gas.html" data-key="waste">Waste</a>
+
+    <select id="citySelect">
+      <option>Seoul</option><option>Busan</option><option>Daegu</option>
+      <option>Daejeon</option><option>Gyeonggi</option><option>Gangwon</option><option>Jeju</option>
+    </select>
+
+    <select id="langSelect" onchange="setLang(this.value)">
+      <option value="en">EN</option>
+      <option value="kr">KR</option>
+      <option value="uz">UZ</option>
+    </select>
+  </nav>
+
+  <label class="switch"><input type="checkbox" id="themeSwitch"><span class="slider"></span></label>
+</header>
+
+
+<section class="hero">
+  <h1 data-key="energy_title">EcoPath Energy & Gas Dashboard</h1>
+  <p data-key="energy_subtitle">Compare city-level energy consumption to drive sustainable policies.</p>
+</section>
+
+<section class="dashboard" id="charts">
+  <h2 id="chartTitle" data-key="chart_title">Energy Overview (<span id="energyCityLabel">Seoul</span>)</h2>
+
+  <div class="kpi-row">
+    <div class="kpi-card"><h4 data-key="total_energy">Total Energy</h4><p id="totalEnergy">Loading...</p></div>
+    <div class="kpi-card"><h4 data-key="avg_usage">Average Usage</h4><p id="avgEnergy">Loading...</p></div>
+    <div class="kpi-card"><h4 data-key="top_district">Top District</h4><p id="topEnergyDistrict">Loading...</p></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="chart-card"><h3 data-key="electricity_chart">Electricity Usage (kWh)</h3><canvas id="elecChart"></canvas></div>
+    <div class="chart-card"><h3 data-key="gas_chart">Gas Usage (m³)</h3><canvas id="gasChart"></canvas></div>
+  </div>
+
+  <div class="chart-card chart-wide">
+    <h3 style="text-align:center;" data-key="compare_chart">Energy vs Gas Comparison (Cities)</h3>
+    <canvas id="lineCompareChart" style="height:380px!important;"></canvas>
+  </div>
+</section>
+
+<h2 style="text-align:center;margin-top:60px;" data-key="nation_map">🌍 Nationwide Energy Map</h2>
+<div class="map-controls">
+  <label><input type="radio" name="energy" value="Electricity" checked> <span data-key="electricity">Electricity</span></label>
+  <label><input type="radio" name="energy" value="Gas"> <span data-key="gas">Gas</span></label>
+</div>
+<div id="map"></div>
+
+<div style="text-align:center;margin:30px 0;">
+  <button id="downloadCSV" style="background:#f79c29;color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:600;margin-right:10px;">
+    📊 Export CSV
+  </button>
+  <button id="downloadXLSX" style="background:#006e55;color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:600;">
+    📘 Export Excel
+  </button>
+</div>
+
+
+<footer class="eco-footer">
+  <div class="footer-container">
+    <div class="footer-section">
+      <h2 class="footer-logo" data-key="logo">EcoPath 🌱</h2>
+      <p data-key="footer_tagline">Empowering sustainable cities through smart waste & energy analytics.</p>
+    </div>
+
+    <div class="footer-section">
+      <h3 data-key="navigation">Navigation</h3>
+      <a href="index.html" data-key="home">Home</a>
+      <a href="energy.html" data-key="energy">Energy & Gas</a>
+      <a href="gas.html" data-key="waste">Waste</a>
+      <a href="login.html" data-key="login">Admin Login</a>
+    </div>
+
+    <div class="footer-section" id="contact">
+      <h3 data-key="contact">Contact</h3>
+      <p>📞 +82 10-0000-0000</p>
+      <p>✉️ support@ecopath.com</p>
+      <p>🌍 Seoul, South Korea</p>
+    </div>
+  </div>
+  <p class="footer-bottom" data-key="footer_rights">© 2025 EcoPath. All rights reserved.</p>
+</footer>
+
+<script>
+/******** ✅ TRANSLATIONS (MOVED UP + COMPLETED KEYS) ********/
+const translations = {
+  en: {
+    logo:"EcoPath",
+    home:"Home",
+    dashboard:"Dashboard",
+    map:"Map",
+    contact:"Contact",
+    waste:"Waste",
+    energy:"Energy & Gas",
+    login:"Login",
+    hero_title:"Reduce. Reuse. and Recycle.",
+    hero_text:"EcoPath helps you visualize and reduce waste, energy, and emissions — empowering cities and individuals to build a sustainable tomorrow.",
+    explore_app:"Explore the App",
+    about_title:"What is EcoPath?",
+    about_text:"EcoPath is a smart environmental tracking platform we built to help people and governments monitor and reduce their ecological footprint. It combines a mobile app for citizens and a web dashboard for municipalities, tracking waste, energy, gas, and water usage with AI-powered trash recognition, interactive maps, and gamified eco-points — making sustainable living data-driven, educational, and rewarding.",
+    features_title:"Key Features",
+    feature1_title:"Eco Behaviour Tracking",
+    feature1_text:"Tracks users’ eco-friendly actions like recycling, energy use, and transport choices. Gives insights and suggestions to help them build sustainable daily habits.",
+    feature2_title:"Eco MarketPlace",
+    feature2_text:"Lets users redeem eco-points for green products, services, or discounts — making eco-friendly living more rewarding and accessible.",
+    feature3_title:"Gamified Progress",
+    feature3_text:"Encourages users through challenges and quizzes that earn eco-XP, unlocking levels, badges, and achievements along their sustainability journey.",
+    mobile_title:"Level Up Your Eco Journey",
+    mobile_text:"Track recycling progress, earn achievements, \nand and stay  connected with your city’s sustainability goals — \nand all through the EcoPath mobile app.",
+    energy_title:"EcoPath Energy & Gas Dashboard",
+    energy_subtitle:"Compare city-level energy consumption to drive sustainable policies.",
+    chart_title:"Energy Overview",
+    total_energy:"Total Energy",
+    avg_usage:"Average Usage",
+    top_district:"Top District",
+    electricity_chart:"Electricity Usage (kWh)",
+    gas_chart:"Gas Usage (m³)",
+    compare_chart:"Energy vs Gas Comparison (Cities)",
+    nation_map:"🌍 Nationwide Energy Map",
+    electricity:"Electricity",
+    gas:"Gas",
+    navigation:"Navigation",
+    footer_tagline:"Empowering sustainable cities through smart waste & energy analytics.",
+    footer_rights:"© 2025 EcoPath. All rights reserved.",
+    back_to_top:"Back to top"
+  },
+  kr: {
+    logo:"에코패스",
+    home:"홈",
+    dashboard:"대시보드",
+    map:"지도",
+    contact:"연락처",
+    waste:"폐기물",
+    energy:"에너지 & 가스",
+    login:"로그인",
+    hero_title:"줄이고, 재사용하고, 재활용하세요.",
+    hero_text:"에코패스는 쓰레기, 에너지, 배출량을 시각화하고 줄일 수 있도록 도와주며, 도시와 개인이 함께 지속 가능한 내일을 만들어가도록 합니다.",
+    explore_app:"앱 살펴보기",
+    about_title:"에코패스란 무엇인가요?",
+    about_text:"에코패스는 사람들과 정부가 환경 발자국을 모니터링하고 줄일 수 있도록 돕는 스마트 환경 추적 플랫폼입니다. 시민용 모바일 앱과 행정용 웹 대시보드를 결합하여 쓰레기, 에너지, 가스, 물 사용량을 추적하고, AI 기반 분리수거 인식, 인터랙티브 지도, 그리고 게이미피케이션된 에코 포인트를 통해 지속 가능한 생활을 쉽고 재미있게 만들어줍니다.",
+    features_title:"주요 기능",
+    feature1_title:"친환경 행동 추적",
+    feature1_text:"재활용, 에너지 사용, 이동 수단 등 사용자의 친환경 활동을 추적하고, 일상 속에서 더 지속 가능한 습관을 형성할 수 있도록 인사이트와 제안을 제공합니다.",
+    feature2_title:"에코 마켓플레이스",
+    feature2_text:"사용자는 에코 포인트를 사용하여 친환경 제품, 서비스, 또는 할인 혜택을 교환할 수 있습니다. 친환경 생활을 보다 보상적이고 실용적으로 만들어줍니다.",
+    feature3_title:"게이미피케이션된 성장",
+    feature3_text:"사용자는 퀴즈나 챌린지를 통해 에코-XP를 얻고, 레벨과 배지를 잠금 해제하면서 지속 가능한 여정을 즐겁게 이어갈 수 있습니다.",
+    mobile_title:"당신의 에코 여정을 업그레이드하세요",
+    mobile_text:"재활용 진행 상황을 추적하고, 업적을 달성하며,\n도시의 지속 가능성 목표와 연결되어 보세요 —\n모든 것이 에코패스 모바일 앱 하나로 가능합니다.",
+    energy_title:"에코패스 에너지 & 가스 대시보드",
+    energy_subtitle:"도시별 에너지 소비를 비교하여 지속 가능한 정책을 세우세요.",
+    chart_title:"에너지 개요",
+    total_energy:"총 에너지",
+    avg_usage:"평균 사용량",
+    top_district:"상위 구/군",
+    electricity_chart:"전기 사용량 (kWh)",
+    gas_chart:"가스 사용량 (m³)",
+    compare_chart:"에너지 vs 가스 비교 (도시)",
+    nation_map:"🌍 전국 에너지 지도",
+    electricity:"전기",
+    gas:"가스",
+    navigation:"내비게이션",
+    footer_tagline:"스마트 폐기물 및 에너지 분석을 통한 지속 가능한 도시 조성.",
+    footer_rights:"© 2025 에코패스 — 모든 권리 보유",
+    back_to_top:"맨 위로"
+  },
+  uz: {
+    logo:"EcoPath",
+    home:"Bosh sahifa",
+    dashboard:"Dashboard",
+    map:"Xarita",
+    contact:"Aloqa",
+    waste:"Chiqindilar",
+    energy:"Energiya & Gaz",
+    login:"Kirish",
+    hero_title:"Kamroq ishlat. Qayta foydalangan. Qayta ishlagan.",
+    hero_text:"EcoPath chiqindi, energiya va emissiyalarni vizuallashtirib, shaharlar va fuqarolarga barqaror kelajak yaratishda yordam beradi.",
+    explore_app:"Ilovani ko‘rish",
+    about_title:"EcoPath nima?",
+    about_text:"EcoPath – odamlar va hukumatlarga ekologik izini kuzatish va kamaytirishda yordam beradigan aqlli platforma. Fuqarolar uchun mobil ilova va hokimiyatlar uchun veb-panel orqali chiqindi, energiya, gaz va suv sarfini kuzatadi; AI asosidagi chiqindi aniqlash, interaktiv xaritalar va gamifikatsiya qilingan eko-ball yordamida barqaror hayotni oson va qiziqarli qiladi.",
+    features_title:"Asosiy imkoniyatlar",
+    feature1_title:"Ekologik odatlarni kuzatish",
+    feature1_text:"Qayta ishlash, energiya sarfi va transport tanlovi kabi xatti-harakatlarni kuzatadi hamda kundalik barqaror odatlar uchun tavsiyalar beradi.",
+    feature2_title:"Eko-bozor",
+    feature2_text:"To‘plangan eko-ballarni yashil mahsulotlar, xizmatlar yoki chegirmalarga almashtirish mumkin.",
+    feature3_title:"Gamifikatsiya qilingan yutuqlar",
+    feature3_text:"Testlar va chaqiriqlar orqali eko-XP yig‘ing, darajalar va nishonlarni oching.",
+    mobile_title:"Eko-sayohatingizni rivojlantiring",
+    mobile_text:"Qayta ishlashni kuzating, yutuqlarga erishing,\nva shahringizning barqarorlik maqsadlari bilan bog‘laning —\nbularning barchasi EcoPath mobil ilovasida.",
+    energy_title:"EcoPath Energiya & Gaz Paneli",
+    energy_subtitle:"Shaharlar bo‘yicha energiya sarfini solishtirib, barqaror siyosatni yo‘naltiring.",
+    chart_title:"Energiya sharhi",
+    total_energy:"Umumiy energiya",
+    avg_usage:"O‘rtacha sarf",
+    top_district:"Eng yuqori tuman",
+    electricity_chart:"Elektr sarfi (kWh)",
+    gas_chart:"Gaz sarfi (m³)",
+    compare_chart:"Energiya va Gaz taqqoslash (shaharlar)",
+    nation_map:"🌍 Respublika bo‘yicha energiya xaritasi",
+    electricity:"Elektr",
+    gas:"Gaz",
+    navigation:"Navigatsiya",
+    footer_tagline:"Aqlli chiqindi va energiya tahlili orqali barqaror shaharlar.",
+    footer_rights:"© 2025 EcoPath — Barcha huquqlar himoyalangan",
+    back_to_top:"Tepaga qaytish"
+  }
+};
+
+/******** ✅ LANGUAGE ********/
+function setLang(lang){localStorage.setItem("lang",lang);translatePage(lang);}
+function translatePage(lang){
+  document.querySelectorAll("[data-key]").forEach(el=>{
+    const key=el.getAttribute("data-key");
+    const t = translations?.[lang]?.[key];
+    if (typeof t !== "undefined") el.textContent = t;
+  });
+
+  // Special case: chart title has a dynamic city span inside
+  const title = document.getElementById("chartTitle");
+  if (title && translations?.[lang]?.chart_title) {
+    title.innerHTML = `${translations[lang].chart_title} (<span id="energyCityLabel">${document.getElementById("energyCityLabel")?.textContent || 'Seoul'}</span>)`;
+  }
+}
+window.onload=()=>{
+  const l=localStorage.getItem("lang")||"en";
+  document.getElementById("langSelect").value=l;
+  translatePage(l);
+};
+
+/******** ✅ THEME ********/
+themeSwitch.addEventListener("change",e=>{
+  document.documentElement.setAttribute("data-theme",e.target.checked?"dark":"light");
+});
+
+/******** ✅ CHARTS ********/
+let elecChart, gasChart, lineCompareChart;
+const energyCityLabel = document.getElementById("energyCityLabel");
+
+function mock(city){
+  const base={Seoul:310,Busan:280,Daegu:260,Daejeon:240,Gyeonggi:320,Gangwon:200,Jeju:230};
+  const k=base[city],days=[...Array(30)].map((_,i)=>`Day ${i+1}`);
+  const e=days.map(()=>Math.round(k*(0.85+Math.random()*0.3)));
+  return {days,e,g:e.map(v=>Math.round(v*0.12))};
+}
+
+function drawCharts(days,e,g){
+  if(elecChart)elecChart.destroy(); if(gasChart)gasChart.destroy(); if(lineCompareChart)lineCompareChart.destroy();
+
+  elecChart=new Chart(document.getElementById("elecChart"),{type:"bar",data:{labels:days,datasets:[{data:e,backgroundColor:"#00a676"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  gasChart=new Chart(document.getElementById("gasChart"),{type:"bar",data:{labels:days,datasets:[{data:g,backgroundColor:"#f79c29"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  lineCompareChart=new Chart(document.getElementById("lineCompareChart"),{type:"line",data:{labels:days,datasets:[
+    {data:e,label:"Electricity",borderColor:"#00a676",tension:.3},
+    {data:g,label:"Gas",borderColor:"#f79c29",tension:.3}
+  ]}});
+  totalEnergy.textContent=e.reduce((a,b)=>a+b,0)+" kWh";
+  avgEnergy.textContent=Math.round(e.reduce((a,b)=>a+b,0)/e.length)+" kWh";
+  topEnergyDistrict.textContent=energyCityLabel.textContent;
+}
+
+async function loadEnergy(c){
+  energyCityLabel.textContent=c;
+  chartTitle.textContent=`Energy Overview (${c})`;
+  const m=mock(c);
+  drawCharts(m.days,m.e,m.g);
+}
+
+/******** ✅ MAP ********/
+let map=L.map("map").setView([37.5665,126.9780],10);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:18}).addTo(map);
+let markers=[];
+
+async function parseCSV(t){
+  return t.trim().split("\n").slice(1).map(r=>{const p=r.split(",");
+    return{district:p[0],lat:+p[1],lon:+p[2],elec:+p[3]||200,gas:+p[4]||30};
+  });
+}
+
+async function loadCityCSV(c){
+  const f=`csv/${c.toLowerCase().replace(" ","")}.csv`;
+  const txt=await(await fetch(f)).text();
+  const parsed = await parseCSV(txt);
+  window.currentCityData = parsed; // ✅ store globally for export
+  return parsed;
+}
+
+function drawMap(d,mode){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  d.forEach(x=>{
+    const v=mode==="Electricity"?x.elec:x.gas;
+    const r=Math.max(6,Math.sqrt(v)/2);
+    const col=mode==="Electricity"?"#00a676":"#f79c29";
+    const m=L.circleMarker([x.lat,x.lon],{radius:r,color:col,fillColor:col,fillOpacity:.75})
+      .bindPopup(`<b>${x.district}</b><br>${mode}: ${v}`).addTo(map);
+    markers.push(m);
+  });
+  map.setView([d[0].lat,d[0].lon],11);
+}
+
+/******** ✅ EVENT LISTENERS ********/
+citySelect.addEventListener("change",async e=>{
+  const c=e.target.value;
+  await loadEnergy(c);
+  const data=await loadCityCSV(c);
+  const m=document.querySelector("input[name='energy']:checked").value;
+  drawMap(data,m);
+});
+
+document.querySelectorAll("input[name='energy']").forEach(r=>{
+  r.addEventListener("change",async()=>{
+    const c=citySelect.value;
+    const d=await loadCityCSV(c);
+    drawMap(d,r.value);
+  });
+});
+
+/******** ✅ INIT ********/
+(async()=>{
+  await loadEnergy("Seoul");
+  const d=await loadCityCSV("Seoul");
+  drawMap(d,"Electricity");
+})();
+
+/******** ✅ EXPORT BUTTONS (REAL DATA) ********/
+window.currentCityData = []; // backend or CSV data stored here
+
+document.getElementById("downloadCSV").addEventListener("click", () => {
+  const data = window.currentCityData;
+  if (!data || data.length === 0) {
+    alert("No data loaded yet. Please wait for dashboard to finish loading.");
+    return;
+  }
+
+  const csvHeader = Object.keys(data[0]).join(",");
+  const csvRows = data.map(row => Object.values(row).join(","));
+  const csvString = [csvHeader, ...csvRows].join("\n");
+
+  const blob = new Blob([csvString], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `EcoPath_${energyCityLabel.textContent}.csv`;
+  link.click();
+});
+
+document.getElementById("downloadXLSX").addEventListener("click", () => {
+  const data = window.currentCityData;
+  if (!data || data.length === 0) {
+    alert("No data loaded yet. Please wait for dashboard to finish loading.");
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, energyCityLabel.textContent);
+  XLSX.writeFile(wb, `EcoPath_${energyCityLabel.textContent}.xlsx`);
+});
+
+</script>
+</body>
+</html>
