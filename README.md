@@ -1,6 +1,6 @@
 # 🌱 EcoPath – Smart Environmental Analytics Platform  
 ### Sustainable Cities Through Data & AI  
-**Web Dashboard + Mobile App + Backend (Deno + PostgreSQL + Docker)**
+**Web Dashboard**
 
 ---
 
