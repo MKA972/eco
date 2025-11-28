@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoPath | For a Smarter & Greener Future</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2e7d32">
+
+<style>
+/* your same CSS unchanged */
+:root {
+  --bg-dark: #001915;
+  --bg-light: #002821;
+  --accent: #00ffb0;
+  --accent-glow: #00ffb04d;
+  --text-light: #f1f1f1;
+  --text-muted: #cccccc;
+  --card: rgba(255, 255, 255, 0.08);
+  --glass: rgba(255,255,255,0.07);
+  --radius: 20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:radial-gradient(circle at 20% 30%,#002b24,#001915 60%);color:var(--text-light);overflow-x:hidden;line-height:1.6;}
+header{position:fixed;top:0;width:100%;display:flex;justify-content:space-between;align-items:center;padding:1rem 8%;background:rgba(0,0,0,0.25);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);z-index:100;box-shadow:0 4px 30px rgba(0,0,0,0.2);}
+.logo{font-size:1.9rem;font-weight:800;color:var(--accent);text-shadow:0 0 8px var(--accent-glow);}
+nav a{color:var(--text-light);text-decoration:none;margin-left:2rem;font-weight:500;transition:color .3s;}
+nav a:hover{color:var(--accent);}
+.login-btn{margin-left:2rem;padding:8px 20px;background:var(--accent);color:#001915;border-radius:8px;text-decoration:none;font-weight:600;transition:.3s;}
+.login-btn:hover{box-shadow:0 0 20px var(--accent-glow);transform:translateY(-2px);}
+#langSelect{margin-left:1.2rem;padding:7px 10px;background:var(--bg-light);border:1px solid var(--accent);color:var(--accent);border-radius:6px;cursor:pointer;}
+.hero{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:10rem 8% 8rem;position:relative;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-100px;left:-100px;width:800px;height:800px;background:radial-gradient(circle,var(--accent-glow),transparent 70%);opacity:.2;animation:floatBg 12s infinite linear alternate;}
+@keyframes floatBg{from{transform:translate(0,0);}to{transform:translate(60px,40px);}}
+.hero-text{flex:1 1 45%;z-index:1;animation:fadeInUp 1.2s ease;}
+.hero-text h1{font-size:3.5rem;color:var(--accent);text-shadow:0 0 8px var(--accent-glow);}
+.hero-text p{margin-top:1.5rem;color:var(--text-muted);max-width:500px;font-size:1.1rem;}
+.hero-text a{display:inline-block;margin-top:2rem;padding:14px 32px;background:var(--accent);color:#001915;font-weight:600;border-radius:10px;text-decoration:none;transition:.3s;}
+.hero-text a:hover{background:#00ffc2;box-shadow:0 0 25px var(--accent-glow);transform:translateY(-2px);}
+.hero-img{flex:1 1 45%;text-align:center;z-index:1;animation:fadeIn 1.6s ease;}
+.hero-img img{width:80%;max-width:420px;filter:drop-shadow(0 0 25px #00ffb020);}
+.about{background:#fff;color:#00221c;text-align:center;padding:7rem 8%;}
+.about h2{font-size:2.6rem;color:#004d3d;margin-bottom:1.5rem;}
+.about p{max-width:780px;margin:0 auto;font-size:1.1rem;line-height:1.9;}
+.features{background:var(--bg-light);color:var(--text-light);text-align:center;padding:7rem 8%;}
+.features h2{font-size:2.4rem;color:var(--accent);margin-bottom:3rem;}
+.feature-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;}
+.feature{width:300px;background:var(--card);border-radius:var(--radius);padding:2.5rem 2rem;box-shadow:0 5px 25px rgba(0,0,0,0.2);transition:.3s;}
+.feature:hover{transform:translateY(-8px);box-shadow:0 10px 40px rgba(0,255,153,0.15);}
+.feature img{width:70px;margin-bottom:1rem;}
+.feature h3{color:var(--accent);margin-bottom:.7rem;}
+.mobile{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;padding:100px 10%;background:#fff;color:#00221c;text-align:left;}
+.mobile-preview img{max-width:460px;border-radius:25px;}
+.eco-footer{background:var(--card-bg);border-top:2px solid var(--border);padding:40px 8%;margin-top:60px;}
+.footer-container{display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px;}
+.footer-logo{font-size:1.6rem;font-weight:700;color:var(--primary);}
+.footer-bottom{text-align:center;margin-top:25px;font-size:.85rem;opacity:.7;}
+.footer-section{text-decoration:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" data-key="logo">EcoPath</div>
+  <nav>
+    <a href="#home" data-key="home">Home</a>
+    <a href="#about" data-key="about">About</a>
+    <a href="#features" data-key="features">Features</a>
+    <a href="#mobile" data-key="app">App</a>
+    <a href="gas.html" data-key="dashboard">Dashboard</a>
+  </nav>
+  <select id="langSelect" onchange="setLang(this.value)">
+    <option value="en">EN</option>
+    <option value="kr">KR</option>
+    <option value="uz">UZ</option>
+  </select>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-text">
+    <h1 data-key="hero_title">Reduce. Reuse. and Recycle.</h1>
+    <p data-key="hero_text">EcoPath helps you visualize and reduce waste, energy, and emissions — empowering cities and individuals to build a sustainable tomorrow.</p>
+    <a href="#mobile" data-key="explore_app">Explore the App</a>
+  </div>
+  <div class="hero-img">
+    <img src="./pic/ecogirl2.png" alt="EcoPath App">
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <h2 data-key="about_title">What is EcoPath?</h2>
+  <p data-key="about_text">EcoPath is a smart environmental tracking platform we built to help people and governments monitor and reduce their ecological footprint across 15 South Korean cities. It combines a mobile app for citizens and a web dashboard for municipalities, tracking waste, energy, gas, and water usage with AI-powered trash recognition, interactive maps, and gamified eco-points — making sustainable living data-driven, educational, and rewarding.</p>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <h2 data-key="features_title">Key Features</h2>
+  <div class="feature-grid">
+    <div class="feature">
+      <img src="./pic/aianalitcs.png" alt="Analytics">
+      <h3 data-key="feature1_title">Eco Behaviour Tracking</h3>
+      <p data-key="feature1_text">Tracks users’ eco-friendly actions like recycling, energy use, and transport choices. Gives insights and suggestions to help them build sustainable daily habits.</p>
+    </div>
+    <div class="feature">
+      <img src="./pic/comunity.png" alt="Community">
+      <h3 data-key="feature2_title">Eco MarketPlace</h3>
+      <p data-key="feature2_text">Lets users redeem eco-points for green products, services, or discounts — making eco-friendly living more rewarding and accessible.</p>
+    </div>
+    <div class="feature">
+      <img src="./pic/education.png" alt="Gamification">
+      <h3 data-key="feature3_title">Gamified Progress</h3>
+      <p data-key="feature3_text">Encourages users through challenges and quizzes that earn eco-XP, unlocking levels, badges, and achievements along their sustainability journey.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MOBILE -->
+<section class="mobile" id="mobile">
+  <div class="mobile-preview">
+    <img src="./pic/mobile.png" alt="App Preview">
+  </div>
+  <div class="mobile-text">
+    <h2 data-key="mobile_title">Level Up Your Eco Journey</h2>
+    <p data-key="mobile_text" style="white-space: pre-line;">Track recycling progress, earn achievements, and stay connected with your city’s sustainability goals — all through the EcoPath mobile app.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="eco-footer">
+  <div class="footer-container">
+    <div class="footer-section">
+      <h2 class="footer-logo" data-key="logo">EcoPath 🌱</h2>
+      <p data-key="footer_tagline">Empowering sustainable cities through smart waste & energy analytics.</p>
+    </div>
+    <div class="footer-section">
+      <h3 data-key="navigation">Navigation</h3>
+      <a href="about.html" data-key="home">Home</a>
+      <a href="energy.html" data-key="energy">Energy & Gas</a>
+      <a href="gas.html" data-key="waste">Waste</a>
+    </div>
+    <div class="footer-section" id="contact">
+      <h3 data-key="contact">Contact</h3>
+      <p>📞 +82 10-0000-0000</p>
+      <p>✉️ support@ecopath.com</p>
+      <p>🌍 Seoul, South Korea</p>
+    </div>
+  </div>
+  <p class="footer-bottom" data-key="footer_rights">© 2025 EcoPath. All rights reserved.</p>
+</footer>
+
+<!-- ✅ FIXED LANGUAGE SYSTEM -->
+<script>
+const translations = {
+  en: {
+    logo:"EcoPath", home:"Home", about:"About", features:"Features", app:"App", dashboard:"Dashboard",
+    hero_title:"Reduce. Reuse. and Recycle.",
+    hero_text:"EcoPath helps you visualize and reduce waste, energy, and emissions — empowering cities and individuals to build a sustainable tomorrow.",
+    explore_app:"Explore the App",
+    about_title:"What is EcoPath?",
+    about_text:"EcoPath is a smart environmental tracking platform we built to help people and governments monitor and reduce their ecological footprint across 15 South Korean cities. It combines a mobile app for citizens and a web dashboard for municipalities, tracking waste, energy, gas, and water usage with AI-powered trash recognition, interactive maps, and gamified eco-points — making sustainable living data-driven, educational, and rewarding.",
+    features_title:"Key Features",
+    feature1_title:"Eco Behaviour Tracking",
+    feature1_text:"Tracks users’ eco-friendly actions like recycling, energy use, and transport choices. Gives insights and suggestions to help them build sustainable daily habits.",
+    feature2_title:"Eco MarketPlace",
+    feature2_text:"Lets users redeem eco-points for green products, services, or discounts — making eco-friendly living more rewarding and accessible.",
+    feature3_title:"Gamified Progress",
+    feature3_text:"Encourages users through challenges and quizzes that earn eco-XP, unlocking levels, badges, and achievements along their sustainability journey.",
+    mobile_title:"Level Up Your Eco Journey",
+    mobile_text:"Track recycling progress, earn achievements,\nand stay connected with your city’s sustainability goals — all through the EcoPath mobile app.",
+    footer_tagline:"Empowering sustainable cities through smart waste & energy analytics.",
+    footer_rights:"© 2025 EcoPath. All rights reserved."
+  },
+  kr: {
+    logo:"에코패스", home:"홈", about:"소개", features:"기능", app:"앱", dashboard:"대시보드",
+    hero_title:"줄이고, 재사용하고, 재활용하세요.",
+    hero_text:"에코패스는 쓰레기, 에너지, 배출량을 시각화하고 줄일 수 있도록 도와주며, 도시와 개인이 함께 지속 가능한 내일을 만들어가도록 합니다.",
+    explore_app:"앱 살펴보기",
+    about_title:"에코패스란 무엇인가요?",
+    about_text:"에코패스는 사람들과 정부가 환경 발자국을 모니터링하고 줄일 수 있도록 돕는 스마트 환경 추적 플랫폼입니다. 시민용 모바일 앱과 행정용 웹 대시보드를 결합하여 쓰레기, 에너지, 가스, 물 사용량을 추적하고, AI 기반 분리수거 인식과 인터랙티브 지도 및 게이미피케이션된 에코 포인트로 지속 가능한 생활을 쉽게 만듭니다.",
+    features_title:"주요 기능",
+    feature1_title:"친환경 행동 추적",
+    feature1_text:"재활용, 에너지 사용, 이동 수단 등 사용자의 친환경 활동을 추적하고, 일상 속에서 지속 가능한 습관을 형성할 수 있도록 돕습니다.",
+    feature2_title:"에코 마켓플레이스",
+    feature2_text:"사용자는 에코 포인트를 사용하여 친환경 제품, 서비스, 또는 할인 혜택으로 교환할 수 있습니다.",
+    feature3_title:"게이미피케이션된 성장",
+    feature3_text:"퀴즈와 챌린지를 통해 에코-XP를 얻고, 레벨과 배지를 잠금 해제하며 지속 가능한 여정을 즐겁게 이어갈 수 있습니다.",
+    mobile_title:"당신의 에코 여정을 업그레이드하세요",
+    mobile_text:"재활용 진행 상황을 추적하고, 업적을 달성하며,\n도시의 지속 가능성 목표와 연결되어 보세요 —\n모든 것이 에코패스 모바일 앱 하나로 가능합니다.",
+    footer_tagline:"스마트 폐기물 및 에너지 분석을 통한 지속 가능한 도시 조성.",
+    footer_rights:"© 2025 에코패스 — 모든 권리 보유"
+  },
+  uz: {
+    logo:"EcoPath", home:"Bosh sahifa", about:"Haqida", features:"Xususiyatlar", app:"Ilova", dashboard:"Panel",
+    hero_title:"Kamroq ishlat. Qayta foydalangan. Qayta ishlagan.",
+    hero_text:"EcoPath chiqindilar, energiya va chiqindilarni kuzatib, shaharlar va fuqarolarga barqaror kelajakni yaratishda yordam beradi.",
+    explore_app:"Ilovani ko‘rish",
+    about_title:"EcoPath nima?",
+    about_text:"EcoPath – odamlar va hukumatlarga ekologik izlarini kuzatish va kamaytirishda yordam beradigan aqlli ekologik platforma. U fuqarolar uchun mobil ilova va hokimiyatlar uchun veb-panelni birlashtirib, chiqindilar, energiya, gaz va suv sarfini kuzatadi. AI asosidagi chiqindi aniqlash, interaktiv xaritalar va gamifikatsiya qilingan eko-ball yordamida barqaror hayotni oson va qiziqarli qiladi.",
+    features_title:"Asosiy imkoniyatlar",
+    feature1_title:"Ekologik odatlarni kuzatish",
+    feature1_text:"Foydalanuvchilarning qayta ishlash, energiya sarfi va transport tanlovi kabi xatti-harakatlarini kuzatadi va kundalik yashashda barqaror odatlar shakllantirish uchun tavsiyalar beradi.",
+    feature2_title:"Eko-bozor",
+    feature2_text:"Foydalanuvchilar yig‘ilgan eko-balllarini yashil mahsulotlar, xizmatlar yoki chegirmalarga almashtirishi mumkin.",
+    feature3_title:"Gamifikatsiya qilingan yutuqlar",
+    feature3_text:"Testlar va topshiriqlarni bajarib eko-XP yig‘ing, darajalar, nishonlar va yutuqlarni oching.",
+    mobile_title:"Eko-sayohatingizni rivojlantiring",
+    mobile_text:"Qayta ishlashni kuzating, yutuqlarga erishing,\nva shahringizning barqarorlik maqsadlari bilan bog‘laning — bularning barchasi EcoPath mobil ilovasida.",
+    footer_tagline:"Aqlli chiqindi va energiya tahlili orqali barqaror shaharlar.",
+    footer_rights:"© 2025 EcoPath — Barcha huquqlar himoyalangan"
+  }
+};
+
+function translatePage(lang) {
+  document.querySelectorAll("[data-key]").forEach(el => {
+    const key = el.getAttribute("data-key");
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+}
+
+function setLang(lang) {
+  localStorage.setItem("lang", lang);
+  translatePage(lang);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("lang") || "en";
+  document.getElementById("langSelect").value = lang;
+  translatePage(lang);
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(() => console.log('✅ Service Worker Registered'))
+    .catch(err => console.log('❌ Service Worker failed:', err));
+}
+</script>
+</body>
+</html>
