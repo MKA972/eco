@@ -515,7 +515,7 @@ async function getDistrict(lat, lon) {
    LOAD WASTE SCANS
 =========================================================== */
 async function loadWasteData() {
-  const res = await fetch("http://localhost:8000/api/waste-scans");
+  const res = await fetch("http://backendapi.ecopath.site/api/waste-scans");
   const json = await res.json();
   wasteData = json.data || [];
 
@@ -565,7 +565,7 @@ async function loadWasteData() {
    LOAD PICKUP REQUESTS
 =========================================================== */
 async function loadPickupRequests() {
-  const res = await fetch("http://localhost:8000/api/pickup-requests");
+  const res = await fetch("http://backendapi.ecopath.site/api/pickup-requests");
   const json = await res.json();
   pickupRequests = json.data || [];
 }

@@ -99,6 +99,9 @@ input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px
   height:70vh;width:90%;margin:3rem auto;border-radius:14px;
   border:2px solid var(--border);box-shadow:0 6px 20px var(--shadow);
 }
+.map-controls{
+  text-align: center;
+}
 
 /* FOOTER */
 .eco-footer{background:var(--card-bg);padding:40px 8%;margin-top:60px;border-top:2px solid var(--border);}
@@ -338,7 +341,7 @@ function getHeatColor(v) {
 =========================================================== */
 async function loadElectric(city) {
   const url =
-    `http://localhost:8000/api/smart-meters/${city}/readings/electricity?from=2025-11-01&to=2025-12-01&interval=day`;
+    `http://backendapi.ecopath.site/api/smart-meters/${city}/readings/electricity?from=2025-11-01&to=2025-12-01&interval=day`;
   const res = await fetch(url);
   const json = await res.json();
   elecData = json.values || [];
@@ -346,7 +349,7 @@ async function loadElectric(city) {
 
 async function loadGas(city) {
   const url =
-    `http://localhost:8000/api/smart-meters/${city}/readings/gas?from=2025-11-01&to=2025-12-01&type=gas&interval=day`;
+    `http://backendapi.ecopath.site/api/smart-meters/${city}/readings/gas?from=2025-11-01&to=2025-12-01&type=gas&interval=day`;
   const res = await fetch(url);
   const json = await res.json();
   gasData = json.values || [];

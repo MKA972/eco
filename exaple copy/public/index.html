@@ -355,12 +355,13 @@ footer a { color: var(--accent); text-decoration: none; }
   <div class="mobile-text">
     <h2 data-key="mobile_title">Level Up Your Eco Journey</h2>
     <p data-key="mobile_text" style="white-space: pre-line;">Track recycling progress, earn achievements, and stay connected with your city’s sustainability goals — all through the EcoPath mobile app.</p>
- <div class="download-buttons"></div>   
+
 <div class="download-buttons">
-  <button onclick="window.location.href='/download-apk'">
+  <button onclick="window.location.href='./EcoPathApp.apk'">
     Download APK
   </button>
 </div>
+
 
   </div>
 </section>
@@ -473,66 +474,6 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log('✅ Service Worker Registered'))
     .catch((err) => console.log('❌ Service Worker failed:', err));
 }
-
-/* ------------------------------------------------------------------
-   🌎 NOMINATIM GEOCODING FUNCTION
-   Convert any city (or district, address) → lat & lon
-   Reusable in any page of your EcoPath platform
------------------------------------------------------------------- */
-async function getCoordinatesFromCity(cityName) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}`;
-
-    try {
-        const res = await fetch(url, {
-            headers: {
-                "User-Agent": "EcoPath/1.0 (contact: support@ecopath.app)"
-            }
-        });
-
-        const data = await res.json();
-
-        if (!data || data.length === 0) {
-            console.warn("⚠ No coordinates found for:", cityName);
-            return null;
-        }
-
-        return {
-            lat: parseFloat(data[0].lat),
-            lon: parseFloat(data[0].lon),
-            display: data[0].display_name
-        };
-
-    } catch (err) {
-        console.error("❌ Geocoding error:", err);
-        return null;
-    }
-}
-
-/* ------------------------------------------------------------------
-   📌 EXAMPLE — HOW YOU WILL USE IT IN DASHBOARD PAGES
-   Your backend sends only { "city": "Seoul" }
------------------------------------------------------------------- */
-
-// Example usage (you will move this part to your dashboard page)
-async function exampleDemo() {
-    const backendCity = "Seoul"; // Replace later with API response
-
-    const result = await getCoordinatesFromCity(backendCity);
-
-    if (result) {
-        console.log("📍 Coordinates received:");
-        console.log("Lat:", result.lat);
-        console.log("Lon:", result.lon);
-        console.log("Full:", result.display);
-
-        // Example for Leaflet:
-        // L.marker([result.lat, result.lon]).addTo(map);
-    }
-}
-
-// Run example only for test — remove this on production
-// exampleDemo();
-
 
 </script>
 
