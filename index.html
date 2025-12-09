@@ -280,6 +280,198 @@ footer {
 }
 footer a { color: var(--accent); text-decoration: none; }
 
+/* ========== MOBILE RESPONSIVE STYLES ========== */
+@media (max-width: 768px) {
+  /* HEADER - Mobile */
+  header {
+    padding: 0.8rem 4%;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  nav {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  nav a {
+    margin-left: 0;
+    margin-right: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .login-btn {
+    margin-left: 0;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+  }
+  
+  #langSelect {
+    margin-left: 0;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+  
+  /* HERO - Mobile */
+  .hero {
+    padding: 8rem 4% 4rem;
+    flex-direction: column;
+  }
+  
+  .hero-text {
+    flex: 1 1 100%;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .hero-text h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  .hero-text p {
+    font-size: 1rem;
+    max-width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .hero-text a {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+  }
+  
+  .hero-img {
+    flex: 1 1 100%;
+  }
+  
+  .hero-img img {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  /* ABOUT - Mobile */
+  .about {
+    padding: 4rem 4%;
+  }
+  
+  .about h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .about p {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+  
+  /* FEATURES - Mobile */
+  .features {
+    padding: 4rem 4%;
+  }
+  
+  .features h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  
+  .feature-grid {
+    gap: 1.5rem;
+  }
+  
+  .feature {
+    width: 100%;
+    max-width: 100%;
+    padding: 2rem 1.5rem;
+  }
+  
+  /* MOBILE SECTION - Mobile */
+  .mobile {
+    padding: 4rem 4%;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .mobile-preview {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .mobile-preview img {
+    max-width: 100%;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .mobile-text {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .mobile-text h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .mobile-text p {
+    font-size: 1rem;
+    white-space: normal;
+  }
+  
+  .download-buttons {
+    text-align: center;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+  }
+  
+  .download-buttons button {
+    width: 100%;
+    max-width: 280px;
+    margin: 0;
+    padding: 12px 20px;
+  }
+  
+  /* FOOTER - Mobile */
+  footer {
+    padding: 2rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0.7rem 3%;
+  }
+  
+  .logo {
+    font-size: 1.3rem;
+  }
+  
+  nav a {
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+  }
+  
+  .hero-text h1 {
+    font-size: 1.6rem;
+  }
+  
+  .about h2,
+  .features h2,
+  .mobile-text h2 {
+    font-size: 1.5rem;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -359,9 +551,9 @@ footer a { color: var(--accent); text-decoration: none; }
 <div class="download-buttons">
   <button onclick="window.location.href='./EcoPathApp.apk'">
     Download App
-<a href="https://mobileapp.ecopath.site/" target="_blank">
-  <button>Open App In Page</button>
-</a>
+  <button onclick="window.open('https://mobileapp.ecopath.site/', '_blank')">
+    Open App In Page
+  </button>
 
 
 </div>

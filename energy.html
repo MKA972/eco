@@ -108,6 +108,210 @@ input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px
 .footer-container{display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px;}
 .footer-logo{font-size:1.6rem;font-weight:700;color:var(--primary);}
 .footer-bottom{text-align:center;margin-top:25px;font-size:.85rem;opacity:.7;}
+
+/* ========== MOBILE RESPONSIVE STYLES ========== */
+@media (max-width: 768px) {
+  /* HEADER - Mobile */
+  header {
+    padding: 0.8rem 4%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .LOGO {
+    font-size: 1.3rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  nav {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  nav a {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  
+  select {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    margin-left: 0;
+  }
+  
+  .switch {
+    margin-left: 0.5rem;
+    width: 3em;
+    height: 1.8em;
+  }
+  
+  /* HERO - Mobile */
+  .hero {
+    padding: 6rem 4% 3rem;
+  }
+  
+  .hero h1 {
+    font-size: 1.8rem;
+    line-height: 1.3;
+  }
+  
+  .hero p {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+  }
+  
+  /* DASHBOARD - Mobile */
+  .dashboard {
+    padding: 3rem 4%;
+  }
+  
+  #chartTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .kpi-row {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .kpi-card {
+    min-width: 100%;
+    padding: 1rem 1.5rem;
+  }
+  
+  .kpi-card h4 {
+    font-size: 0.9rem;
+  }
+  
+  .kpi-card p {
+    font-size: 1.1rem;
+  }
+  
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .chart-card {
+    height: 350px;
+    padding: 1.2rem;
+  }
+  
+  .chart-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .chart-wide {
+    width: 100%;
+    margin: 20px auto;
+    height: 380px;
+  }
+  
+  /* MAP - Mobile */
+  #map {
+    height: 50vh;
+    width: 95%;
+    margin: 2rem auto;
+  }
+  
+  #mapTitle {
+    font-size: 1.3rem;
+    margin-top: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .map-controls {
+    padding: 0 1rem;
+    margin: 1rem 0;
+  }
+  
+  .map-controls label {
+    font-size: 0.9rem;
+    margin: 0 0.5rem;
+  }
+  
+  /* EXPORT BUTTONS - Mobile */
+  div[style*="text-align:center"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0 1rem;
+  }
+  
+  div[style*="text-align:center"] button {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 !important;
+    padding: 12px 18px;
+    font-size: 0.9rem;
+  }
+  
+  /* FOOTER - Mobile */
+  .eco-footer {
+    padding: 2rem 4%;
+  }
+  
+  .footer-container {
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .footer-logo {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0.7rem 3%;
+  }
+  
+  .LOGO {
+    font-size: 1.1rem;
+  }
+  
+  nav a {
+    font-size: 0.75rem;
+  }
+  
+  select {
+    font-size: 0.75rem;
+    padding: 5px 8px;
+  }
+  
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+  
+  #chartTitle {
+    font-size: 1.3rem;
+  }
+  
+  .chart-card {
+    height: 300px;
+    padding: 1rem;
+  }
+  
+  .chart-wide {
+    height: 320px;
+  }
+  
+  #map {
+    height: 45vh;
+  }
+  
+  #mapTitle {
+    font-size: 1.1rem;
+  }
+}
 </style>
 </head>
 
