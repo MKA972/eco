@@ -143,7 +143,7 @@ input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px
 </section>
 
 <section class="dashboard" id="charts">
-  <h2 id="chartTitle">Energy Overview (<span id="energyCityLabel">Seoul</span>)</h2>
+  <h2 id="chartTitle">Overview (<span id="energyCityLabel">Seoul</span>)</h2>
 
   <div class="kpi-row">
     <div class="kpi-card"><h4>Total Electricity</h4><p id="totalElectricity">Loading...</p></div>
@@ -161,7 +161,8 @@ input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px
     <canvas id="lineCompareChart"></canvas>
   </div>
 </section>
-<h2 style="text-align:center;margin-top:60px;">🌍 Nationwide Energy Map</h2>
+<h2 id="mapTitle" style="text-align:center;margin-top:60px;">🌍 Nationwide Energy Map</h2>
+
 
 <div class="map-controls">
   <label><input type="radio" name="energyType" value="electricity" checked> Electricity</label>
@@ -182,7 +183,9 @@ input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px
 
 <footer class="eco-footer">
   <div class="footer-container">
-    <div><h2 class="footer-logo">EcoPath 🌱</h2><p>Empowering sustainable cities.</p></div>
+    <div><h2 class="footer-logo">EcoPath 🌱</h2>
+    <p id="footerDesc">Empowering sustainable cities.</p>
+</div>
     <div>
       <h3>Navigation</h3>
       <a href="index.html">Home</a><br>
@@ -210,6 +213,7 @@ const translations = {
     heroDesc: "Compare city-level energy consumption to drive sustainable policies.",
     kpiElec: "Total Electricity",
     kpiGas: "Total Gas",
+    chartTitle: "Overview",
     kpiAvg: "Average Energy",
     chartElec: "Electricity Usage (kWh)",
     chartGas: "Gas Usage (m³)",
@@ -232,6 +236,7 @@ const translations = {
     kpiElec: "총 전기 사용량",
     kpiGas: "총 가스 사용량",
     kpiAvg: "평균 에너지",
+    chartTitle: "전반적 개요",
     chartElec: "전기 사용량 (kWh)",
     chartGas: "가스 사용량 (m³)",
     compare: "에너지 vs 가스 비교",
@@ -251,6 +256,7 @@ const translations = {
     heroTitle: "EcoPath Energiya & Gaz Paneli",
     heroDesc: "Shahar energiya iste'molini solishtiring va barqaror siyosat yarating.",
     kpiElec: "Jami Elektr Energiyasi",
+    chartTitle: "Umumiy ma’lumot",
     kpiGas: "Jami Gaz",
     kpiAvg: "O'rtacha Energiya",
     chartElec: "Elektr Sarfi (kWh)",
@@ -268,6 +274,7 @@ const translations = {
 
 function applyLanguage(lang) {
   const t = translations[lang];
+document.getElementById("chartTitle").innerHTML = `${t.chartTitle} (<span id="energyCityLabel">${currentCity}</span>)`;
 
   /* NAVIGATION */
   document.querySelector("nav a[href='#charts']").textContent = t.dashboard;
@@ -290,14 +297,15 @@ function applyLanguage(lang) {
   document.querySelectorAll(".chart-card.chart-wide h3")[0].textContent = t.compare;
 
   /* MAP TITLE */
-  document.querySelector("h2[style*='Nationwide']").textContent = t.mapTitle;
+  document.getElementById("mapTitle").textContent = t.mapTitle;
+
 
   /* BUTTONS */
   document.getElementById("downloadCSV").textContent = t.exportCSV;
   document.getElementById("downloadXLSX").textContent = t.exportXLSX;
 
   /* FOOTER */
-  document.querySelector(".footer-container p").textContent = t.contact;
+  document.getElementById("footerDesc").textContent = t.contact;
   const foot = document.querySelectorAll(".eco-footer a");
   foot[0].textContent = t.navHome;
   foot[1].textContent = t.navEnergy;

@@ -191,7 +191,7 @@ box-shadow:0 6px 20px var(--shadow);border:2px solid var(--border)}
 </div>
 
 <!-- MAP -->
-<h2 style="text-align:center;margin-top:30px;">🌍 Nationwide Waste Map</h2>
+<h2 id="mapTitle" style="text-align:center;margin-top:30px;">🌍 Nationwide Waste Map</h2>
 <div id="map">
 </div>
 <div style="text-align:center;margin:30px 0;">
@@ -207,7 +207,8 @@ box-shadow:0 6px 20px var(--shadow);border:2px solid var(--border)}
   <div class="footer-container">
     <div>
       <h2 class="footer-logo">EcoPath 🌱</h2>
-      <p>Empowering sustainable cities through smart analytics.</p>
+      <p id="footerText">Empowering sustainable cities through smart analytics.</p>
+
     </div>
     <div>
       <h3>Navigation</h3>
@@ -391,7 +392,7 @@ function setLang(lang) {
   th[2].textContent = t.thPhoto;
   th[3].textContent = t.thNotes;
 
-  document.querySelector("h2[style*='Nationwide']").textContent = t.mapTitle;
+  document.getElementById("mapTitle").textContent = t.mapTitle;
 
   document.getElementById("downloadCSV").textContent = t.exportCSV;
   document.getElementById("downloadXLSX").textContent = t.exportXLSX;
@@ -409,7 +410,7 @@ function setLang(lang) {
   p[1].textContent = t.footerEmail;
   p[2].textContent = t.footerLocation;
 
-  document.querySelector(".footer-container p").textContent = t.footerText;
+  document.getElementById("footerText").textContent = t.footerText;
 }
 
 document.getElementById("langSelect").addEventListener("change", (e) => {
