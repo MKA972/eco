@@ -621,6 +621,7 @@ function renderCharts() {
     data: {
       labels,
       datasets: [{
+        label: "Electricity",
         data: slicedElec.map(x => x.value),
         borderColor: "#00a676",
         borderWidth: 3,
@@ -639,6 +640,7 @@ function renderCharts() {
     data: {
       labels,
       datasets: [{
+        label: "Gas",
         data: slicedGas.map(x => x.value),
         borderColor: "#f79c29",
         borderWidth: 3,
