@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoPath | Waste Dashboard</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+
+
+
+<style>
+/* -------------------------------------------------------------
+   SAME CSS AS YOUR ORIGINAL — NO CHANGES HERE
+-------------------------------------------------------------- */
+
+:root {
+  --bg:#f3f6f5; --text-main:#00221c; --primary:#006e55; --primary-light:#00a676;
+  --card-bg:#ffffff; --border:#d0d8d6; --shadow:rgba(0,0,0,0.1);
+}
+[data-theme="dark"] {
+  --bg:#0e141a; --text-main:#f1f3f2; --primary:#00c48c; --primary-light:#00ffb0;
+  --card-bg:#121c25; --border:#22313b; --shadow:rgba(0,0,0,0.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;transition:.2s}
+body{font-family:Poppins,sans-serif;background:var(--bg);color:var(--text-main);overflow-x:hidden}
+
+/* HEADER */
+header{position:fixed;top:0;width:100%;background:var(--card-bg);padding:1rem 8%;
+display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px var(--shadow);z-index:100}
+.LOGO{font-size:1.6rem;color:var(--primary);font-weight:700;text-decoration:none}
+nav a{margin:0 1rem;color:var(--text-main);text-decoration:none;font-weight:500}
+nav a:hover{color:var(--primary-light)}
+select{background:var(--primary);color:#fff;padding:8px 14px;border:none;border-radius:8px;font-weight:600;margin-left:6px}
+
+/* THEME SWITCH */
+.switch{font-size:17px;position:relative;display:inline-block;width:3.5em;height:2em;margin-left:1rem;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{--background:#b8b6b6;position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:var(--background);transition:.5s;border-radius:25px;}
+.slider:before{position:absolute;content:"";height:1.4em;width:1.4em;border-radius:50%;left:10%;bottom:15%;box-shadow: inset 8px -4px 0px 0px #fff000;background:var(--background);transition:.5s;}
+input:checked + .slider{background-color:#1a6249;}
+input:checked + .slider:before{transform:translateX(100%);box-shadow: inset 15px -4px 0px 15px #fff000;}
+
+/* HERO */
+.hero{text-align:center;padding:7rem 1rem 3rem}
+.hero h1{font-size:2.3rem;color:var(--primary);margin-bottom:.3rem}
+
+/* KPI + CHARTS */
+.dashboard{padding:4rem 8%;}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.kpi{background:var(--card-bg);padding:1.2rem;border-radius:14px;box-shadow:0 4px 12px var(--shadow);text-align:center}
+.kpi h4{color:var(--primary-light);font-size:.9rem}
+.kpi p{font-size:1.3rem;font-weight:600}
+
+.chart-area{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:1.8rem}
+.chart-box{background:var(--card-bg);padding:1.2rem;border-radius:14px;box-shadow:0 4px 12px var(--shadow)}
+
+.requests {padding:3rem 8%;text-align:center;}
+.table-wrapper{background:var(--card-bg);border-radius:12px;box-shadow:0 4px 12px var(--shadow);padding:20px;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{padding:10px;border-bottom:1px solid var(--border);}
+th{background:var(--primary);color:#fff;}
+.pic-btn,.note-btn,.done-btn{
+  padding:6px 12px;border:none;border-radius:6px;font-weight:600;cursor:pointer;color:#fff;
+}
+.pic-btn{background:#00a676;}
+.note-btn{background:#f79c29;}
+.done-btn{background:#007bff;}
+.pic-btn:hover,.note-btn:hover,.done-btn:hover{opacity:0.8;}
+
+#map{height:70vh;width:90%;margin:3rem auto;border-radius:14px;
+box-shadow:0 6px 20px var(--shadow);border:2px solid var(--border)}
+
+.modal {
+  display:none;position:fixed;z-index:10000;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);justify-content:center;align-items:center;
+}
+.modal-content {max-width:80%;max-height:80%;border-radius:14px;box-shadow:0 0 20px rgba(0,0,0,0.5);}
+.close {position:fixed;top:20px;right:30px;font-size:40px;color:#fff;font-weight:bold;cursor:pointer;z-index:11000;}
+.close:hover { color:#ff4444; }
+
+#noteModal .note-box {
+  background:#ffffff;color:#00221c;padding:25px;border-radius:14px;max-width:420px;width:80%;
+  box-shadow:0 6px 25px rgba(0,0,0,0.3);position:relative;
+}
+
+/* FOOTER */
+.eco-footer{background:var(--card-bg);border-top:2px solid var(--border);padding:40px 8%;margin-top:60px;}
+.footer-container{display:flex;flex-wrap:wrap;justify-content:space-between;gap:40px;}
+.footer-logo{font-size:1.6rem;font-weight:700;color:var(--primary);}
+.footer-bottom{text-align:center;margin-top:25px;font-size:.85rem;opacity:.7;}
+
+/* ========== MOBILE RESPONSIVE STYLES ========== */
+@media (max-width: 768px) {
+  /* HEADER - Mobile */
+  header {
+    padding: 0.8rem 4%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .LOGO {
+    font-size: 1.3rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  nav {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  nav a {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  
+  select {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    margin-left: 0;
+  }
+  
+  .switch {
+    margin-left: 0.5rem;
+    width: 3em;
+    height: 1.8em;
+  }
+  
+  /* HERO - Mobile */
+  .hero {
+    padding: 6rem 4% 3rem;
+  }
+  
+  .hero h1 {
+    font-size: 1.8rem;
+    line-height: 1.3;
+  }
+  
+  /* DASHBOARD - Mobile */
+  .dashboard {
+    padding: 3rem 4%;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .kpi {
+    padding: 1rem;
+  }
+  
+  .kpi h4 {
+    font-size: 0.85rem;
+  }
+  
+  .kpi p {
+    font-size: 1.1rem;
+  }
+  
+  .chart-area {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .chart-box {
+    padding: 1.2rem;
+  }
+  
+  .chart-box h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .chart-box canvas {
+    max-height: 300px;
+  }
+  
+  /* REQUESTS TABLE - Mobile */
+  .requests {
+    padding: 2rem 4%;
+  }
+  
+  .requests h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .table-wrapper {
+    padding: 15px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 600px;
+    font-size: 0.85rem;
+  }
+  
+  th, td {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
+  
+  .pic-btn, .note-btn, .done-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+  
+  /* MAP - Mobile */
+  #map {
+    height: 50vh;
+    width: 95%;
+    margin: 2rem auto;
+  }
+  
+  #mapTitle {
+    font-size: 1.3rem;
+    margin-top: 2rem;
+    padding: 0 1rem;
+  }
+  
+  /* EXPORT BUTTONS - Mobile */
+  div[style*="text-align:center"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0 1rem;
+  }
+  
+  div[style*="text-align:center"] button {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 !important;
+    padding: 12px 18px;
+    font-size: 0.9rem;
+  }
+  
+  /* MODALS - Mobile */
+  .modal-content {
+    max-width: 95%;
+    max-height: 90%;
+  }
+  
+  .close {
+    top: 10px;
+    right: 15px;
+    font-size: 35px;
+  }
+  
+  #noteModal .note-box {
+    max-width: 90%;
+    padding: 20px;
+    margin: 0 auto;
+  }
+  
+  /* FOOTER - Mobile */
+  .eco-footer {
+    padding: 2rem 4%;
+  }
+  
+  .footer-container {
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .footer-logo {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0.7rem 3%;
+  }
+  
+  .LOGO {
+    font-size: 1.1rem;
+  }
+  
+  nav a {
+    font-size: 0.75rem;
+  }
+  
+  select {
+    font-size: 0.75rem;
+    padding: 5px 8px;
+  }
+  
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+  
+  .requests h2 {
+    font-size: 1.3rem;
+  }
+  
+  table {
+    min-width: 500px;
+    font-size: 0.75rem;
+  }
+  
+  th, td {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+  
+  .pic-btn, .note-btn, .done-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+  
+  #map {
+    height: 45vh;
+  }
+  
+  #mapTitle {
+    font-size: 1.1rem;
+  }
+  
+  .chart-box canvas {
+    max-height: 250px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="LOGO">EcoPath 🌱</a>
+  <nav>
+    <a href="#charts">Dashboard</a>
+    <a href="#map">Map</a>
+    <a href="./energy.html">Energy & Gas</a>
+
+     <select id="citySelect">
+      <option>Seoul</option><option>Busan</option><option>Daegu</option>
+      <option>Daejeon</option><option>Gyeonggi</option><option>Gangwon</option><option>Jeju</option>
+    </select>
+
+    <select id="langSelect">
+      <option value="en">EN</option>
+      <option value="kr">KR</option>
+      <option value="uz">UZ</option>
+    </select>
+  </nav>
+
+  <label class="switch">
+    <input type="checkbox" id="themeSwitch">
+    <span class="slider"></span>
+  </label>
+</header>
+
+<section class="hero">
+  <h1>Waste Analytics Dashboard</h1>
+</section>
+
+<!-- ===========================
+     KPI + CHARTS
+=========================== -->
+<section class="dashboard" id="charts">
+  <div class="kpi-grid">
+    <div class="kpi"><h4>Avg / District</h4><p id="kpiAvg">-</p></div>
+    <div class="kpi"><h4>Top District</h4><p id="kpiTopDistrict">-</p></div>
+    <div class="kpi"><h4>Recycle Rate</h4><p id="kpiRecycle">-</p></div>
+  </div>
+
+  <div class="chart-area">
+    <div class="chart-box">
+      <h3>Waste by District</h3>
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h3>Weekly Trend</h3>
+      <canvas id="lineChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h3>Waste Composition</h3>
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     REQUESTS
+=========================== -->
+<section class="requests">
+  <h2 style="color:var(--primary); margin-bottom:20px;">Waste Collection Requests</h2>
+
+  <div class="table-wrapper">
+    <table id="pendingTable">
+      <thead>
+        <tr>
+          <th>Address</th>
+          <th>Pickup Date</th>
+          <th>Photo</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODALS -->
+<div id="photoModal" class="modal">
+  <span class="close" onclick="closeModal()">&times;</span>
+  <img class="modal-content" id="photoPreview">
+</div>
+
+<div id="noteModal" class="modal">
+  <div class="note-box">
+    <span class="close" onclick="closeNote()">&times;</span>
+    <p id="noteText"></p>
+  </div>
+</div>
+
+<!-- MAP -->
+<h2 id="mapTitle" style="text-align:center;margin-top:30px;">🌍 Nationwide Waste Map</h2>
+<div id="map">
+</div>
+<div style="text-align:center;margin:30px 0;">
+ <button id="downloadCSV"
+    style="background:#f79c29;color:#fff;border:none;padding:10px 18px;border-radius:8px;
+    cursor:pointer;font-weight:600;margin-right:10px;">📊 Export CSV</button>
+  <button id="downloadXLSX"
+    style="background:#006e55;color:#fff;border:none;padding:10px 18px;border-radius:8px;
+    cursor:pointer;font-weight:600;">📘 Export Excel</button>
+</div>
+
+<footer class="eco-footer">
+  <div class="footer-container">
+    <div>
+      <h2 class="footer-logo">EcoPath 🌱</h2>
+      <p id="footerText">Empowering sustainable cities through smart analytics.</p>
+
+    </div>
+    <div>
+      <h3>Navigation</h3>
+      <a href="index.html">Home</a><br>
+      <a href="energy.html">Energy & Gas</a><br>
+      <a href="gas.html">Waste</a><br>
+  
+    </div>
+    <div>
+      <h3>Contact</h3>
+      <p>📞 +82 10-0000-0000</p>
+      <p>✉️ support@ecopath.com</p>
+      <p>🌍 Seoul, South Korea</p>
+    </div>
+  </div>
+  <p class="footer-bottom">© 2025 EcoPath. All rights reserved.</p>
+</footer>
+<!--
+
+END OF HTML — NOW JAVASCRIPT BELOW
+==================================
+-->
+<script>
+/* ===========================================================
+   GLOBAL VARIABLES
+=========================================================== */
+let wasteData = [];
+let pickupRequests = [];
+let currentCity = "Seoul";
+
+let barChart, lineChart, pieChart;
+
+let map, tileLayer;
+
+const geoCache = {};
+const GEOAPIFY_KEY = "d8ccfe79ad8f4b1b9e9beac5c00d0ee3";
+
+/* ===========================================================
+   THEME SYSTEM
+=========================================================== */
+function setMapStyle(theme) {
+  if (tileLayer) map.removeLayer(tileLayer);
+
+  tileLayer = L.tileLayer(
+    theme === "dark"
+      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    { maxZoom: 19 }
+  );
+
+  tileLayer.addTo(map);
+}
+
+document.getElementById("themeSwitch").addEventListener("change", (e) => {
+  const theme = e.target.checked ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", theme);
+  setMapStyle(theme);
+});
+
+/* ===========================================================
+   LANGUAGE SYSTEM
+=========================================================== */
+const translations = {
+  en: {
+    navDashboard: "Dashboard",
+    navMap: "Map",
+    navEnergy: "Energy & Gas",
+    navWaste: "Waste",
+    dashboardTitle: "Waste Analytics Dashboard",
+    kpiAvg: "Avg / District",
+    kpiTopDistrict: "Top District",
+    kpiRecycle: "Recycle Rate",
+    chartWasteDistrict: "Waste by District",
+    chartWeekly: "Weekly Trend",
+    chartComposition: "Waste Composition",
+    requestsTitle: "Waste Collection Requests",
+    thAddress: "Address",
+    thPickup: "Pickup Date",
+    thPhoto: "Photo",
+    thNotes: "Notes",
+    viewPhoto: "View",
+    noteBtn: "Note",
+    mapTitle: "🌍 Nationwide Waste Map",
+    exportCSV: "📊 Export CSV",
+    exportXLSX: "📘 Export Excel",
+    footerHome: "Home",
+    footerEnergy: "Energy & Gas",
+    footerWaste: "Waste",
+    footerContact: "Contact",
+    footerText: "Empowering sustainable cities through smart analytics.",
+    footerPhone: "📞 +82 10-0000-0000",
+    footerEmail: "✉️ support@ecopath.com",
+    footerLocation: "🌍 Seoul, South Korea"
+  },
+  kr: {
+    navDashboard: "대시보드",
+    navMap: "지도",
+    navEnergy: "에너지 & 가스",
+    navWaste: "폐기물",
+    dashboardTitle: "폐기물 분석 대시보드",
+    kpiAvg: "구 평균",
+    kpiTopDistrict: "최대 배출 구",
+    kpiRecycle: "재활용 비율",
+    chartWasteDistrict: "구별 폐기물",
+    chartWeekly: "주간 추세",
+    chartComposition: "폐기물 구성",
+    requestsTitle: "수거 요청 목록",
+    thAddress: "주소",
+    thPickup: "수거 날짜",
+    thPhoto: "사진",
+    thNotes: "메모",
+    viewPhoto: "보기",
+    noteBtn: "메모",
+    mapTitle: "🌍 전국 폐기물 지도",
+    exportCSV: "📊 CSV 다운로드",
+    exportXLSX: "📘 엑셀 다운로드",
+    footerHome: "홈",
+    footerEnergy: "에너지 & 가스",
+    footerWaste: "폐기물",
+    footerContact: "연락처",
+    footerText: "스마트 분석으로 지속 가능한 도시를 만듭니다.",
+    footerPhone: "📞 +82 10-0000-0000",
+    footerEmail: "✉️ support@ecopath.com",
+    footerLocation: "🌍 서울, 대한민국"
+  },
+  uz: {
+    navDashboard: "Dashboard",
+    navMap: "Xarita",
+    navEnergy: "Energiya & Gaz",
+    navWaste: "Chiqindi",
+    dashboardTitle: "Chiqindi Analitika Paneli",
+    kpiAvg: "Tuman o‘rtacha",
+    kpiTopDistrict: "Eng ko‘p chiqindi",
+    kpiRecycle: "Qayta ishlash darajasi",
+    chartWasteDistrict: "Tumanlar bo‘yicha chiqindi",
+    chartWeekly: "Haftalik trend",
+    chartComposition: "Chiqindi tarkibi",
+    requestsTitle: "Chiqindi yig‘ish so‘rovlari",
+    thAddress: "Manzil",
+    thPickup: "Yig‘ish sanasi",
+    thPhoto: "Rasm",
+    thNotes: "Izoh",
+    viewPhoto: "Ko‘rish",
+    noteBtn: "Izoh",
+    mapTitle: "🌍 Mamlakat bo‘yicha chiqindi xaritasi",
+    exportCSV: "📊 CSV Yuklab olish",
+    exportXLSX: "📘 Excel Yuklab olish",
+    footerHome: "Bosh sahifa",
+    footerEnergy: "Energiya & Gaz",
+    footerWaste: "Chiqindi",
+    footerContact: "Aloqa",
+    footerText: "Barqaror shaharlar sari aqlli tahlil.",
+    footerPhone: "📞 +82 10-0000-0000",
+    footerEmail: "✉️ support@ecopath.com",
+    footerLocation: "🌍 Seul, Janubiy Koreya"
+  }
+};
+
+function setLang(lang) {
+  const t = translations[lang];
+
+  document.querySelector("nav a[href='#charts']").textContent = t.navDashboard;
+  document.querySelector("nav a[href='#map']").textContent = t.navMap;
+  document.querySelector("nav a[href='./energy.html']").textContent = t.navEnergy;
+
+  document.querySelector(".hero h1").textContent = t.dashboardTitle;
+
+  document.querySelectorAll(".kpi h4")[0].textContent = t.kpiAvg;
+  document.querySelectorAll(".kpi h4")[1].textContent = t.kpiTopDistrict;
+  document.querySelectorAll(".kpi h4")[2].textContent = t.kpiRecycle;
+
+  document.querySelectorAll(".chart-box h3")[0].textContent = t.chartWasteDistrict;
+  document.querySelectorAll(".chart-box h3")[1].textContent = t.chartWeekly;
+  document.querySelectorAll(".chart-box h3")[2].textContent = t.chartComposition;
+
+  document.querySelector(".requests h2").textContent = t.requestsTitle;
+
+  const th = document.querySelectorAll("#pendingTable th");
+  th[0].textContent = t.thAddress;
+  th[1].textContent = t.thPickup;
+  th[2].textContent = t.thPhoto;
+  th[3].textContent = t.thNotes;
+
+  document.getElementById("mapTitle").textContent = t.mapTitle;
+
+  document.getElementById("downloadCSV").textContent = t.exportCSV;
+  document.getElementById("downloadXLSX").textContent = t.exportXLSX;
+
+  const footerLinks = document.querySelectorAll(".eco-footer a");
+  footerLinks[0].textContent = t.footerHome;
+  footerLinks[1].textContent = t.footerEnergy;
+  footerLinks[2].textContent = t.footerWaste;
+
+  const footerContact = document.querySelectorAll(".footer-container div")[2];
+  footerContact.querySelector("h3").textContent = t.footerContact;
+
+  const p = footerContact.querySelectorAll("p");
+  p[0].textContent = t.footerPhone;
+  p[1].textContent = t.footerEmail;
+  p[2].textContent = t.footerLocation;
+
+  document.getElementById("footerText").textContent = t.footerText;
+}
+
+document.getElementById("langSelect").addEventListener("change", (e) => {
+  setLang(e.target.value);
+});
+
+/* ===========================================================
+   GEOAPIFY REVERSE GEOCODING — CITY + DISTRICT
+=========================================================== */
+async function getLocationDetails(lat, lon) {
+  const key = `${lat},${lon}`;
+  if (geoCache[key]) return geoCache[key];
+
+  try {
+    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&type=city&apiKey=${GEOAPIFY_KEY}`;
+    const res = await fetch(url);
+
+    if (!res.ok) throw new Error("Geoapify error");
+
+    const json = await res.json();
+    const props = json?.features?.[0]?.properties || {};
+
+    const city =
+      props.city ||
+      props.state ||
+      props.county ||
+      props.region ||
+      "Unknown";
+
+    const district =
+      props.district ||
+      props.suburb ||
+      props.county ||
+      props.borough ||
+      "Unknown";
+
+    const result = { city, district };
+    geoCache[key] = result;
+
+    return result;
+  } catch (err) {
+    console.error("Geoapify reverse geocoding failed:", err);
+    const fallback = { city: "Unknown", district: "Unknown" };
+    geoCache[k] = fallback;
+    return fallback;
+  }
+}
+
+/* ===========================================================
+   LOAD WASTE SCANS — ADD _city AND _district
+=========================================================== */
+async function loadWasteData() {
+  const res = await fetch("https://backendapi.ecopath.site/api/waste-scans");
+  const json = await res.json();
+  wasteData = json.data || [];
+
+  const jobs = wasteData.map(async (item) => {
+    const { latitude, longitude } = item.geoLocation;
+    const { city, district } = await getLocationDetails(latitude, longitude);
+
+    item._city = city;
+    item._district = district;
+  });
+
+  await Promise.all(jobs);
+}
+
+/* ===========================================================
+   LOAD PICKUP REQUESTS
+=========================================================== */
+async function loadPickupRequests() {
+  const res = await fetch("https://backendapi.ecopath.site/api/pickup-requests");
+  const json = await res.json();
+  pickupRequests = json.data || [];
+}
+
+/* ===========================================================
+   FILTER + REFRESH DASHBOARD WHEN CITY SELECTED
+=========================================================== */
+function updateDashboardForCity() {
+  const filteredWaste = wasteData.filter(i => i._city === currentCity);
+  renderDashboard(filteredWaste);
+
+  // Map should always show all dots nationwide:
+  drawMap();
+
+  loadRequestsForCity(currentCity);
+}
+
+/* ===========================================================
+   REQUEST TABLE (CITY FILTER + BUTTONS)
+=========================================================== */
+function detectMime(b64) {
+  if (!b64) return "image/jpeg";
+
+  const sig = b64.substring(0, 5);
+
+  if (sig.startsWith("/9j")) return "image/jpeg";
+  if (sig.startsWith("iVB")) return "image/png";
+  if (sig.startsWith("R0l")) return "image/gif";
+
+  return "image/jpeg";
+}
+
+function loadRequestsForCity(city) {
+  const body = document.querySelector("#pendingTable tbody");
+  body.innerHTML = "";
+
+  pickupRequests
+    .filter(req =>
+      req.location.city?.toLowerCase().includes(city.toLowerCase())
+    )
+    .forEach((req) => {
+      const row = body.insertRow();
+
+      row.insertCell(0).textContent =
+        `${req.location.street} ${req.location.houseNumber}, ${req.location.city}`;
+      row.insertCell(1).textContent = req.timestamp;
+
+            const photoCell = row.insertCell(2);
+      const btnView = document.createElement("button");
+      btnView.textContent = "View";
+      btnView.className = "pic-btn";
+      btnView.onclick = () => {
+        const mime = detectMime(req.image);
+        viewPhoto(`data:${mime};base64,${req.image}`);
+      };
+      photoCell.appendChild(btnView);
+
+      const noteCell = row.insertCell(3);
+      const btnNote = document.createElement("button");
+      btnNote.textContent = "Note";
+      btnNote.className = "note-btn";
+      btnNote.onclick = () => openNote(req.notes || "No notes");
+      noteCell.appendChild(btnNote);
+    });
+}
+function viewPhoto(src) {
+  document.getElementById("photoPreview").src = src;
+  document.getElementById("photoModal").style.display = "flex";
+}
+function closeModal() {
+  document.getElementById("photoModal").style.display = "none";
+}
+function openNote(text) {
+  document.getElementById("noteText").textContent = text;
+  document.getElementById("noteModal").style.display = "flex";
+}
+function closeNote() {
+  document.getElementById("noteModal").style.display = "none";
+}
+
+/* ===========================================================
+   CHARTS (FILTERED BY CITY)
+=========================================================== */
+function renderDashboard(data = wasteData) {
+  if (barChart) barChart.destroy();
+  if (lineChart) lineChart.destroy();
+  if (pieChart) pieChart.destroy();
+
+  const districtStats = {};
+
+  data.forEach(item => {
+    const d = item._district || "Unknown";
+
+    if (!districtStats[d]) {
+      districtStats[d] = {
+        district: d,
+        Plastic: 0,
+        Paper: 0,
+        Glass: 0,
+        Metal: 0,
+        General: 0,
+        Bio: 0,
+        total: 0,
+        weekly: Array(7).fill(0)
+      };
+    }
+
+    const grp = districtStats[d];
+
+    switch (item.wasteType) {
+      case "plastic": grp.Plastic++; break;
+      case "paper_and_cardboard": grp.Paper++; break;
+      case "glass": grp.Glass++; break;
+      case "metal": grp.Metal++; break;
+      case "general": grp.General++; break;
+      case "bio": grp.Bio++; break;
+    }
+
+    grp.total++;
+    const day = new Date(item.timestamp).getDay();
+    grp.weekly[(day + 6) % 7]++;
+  });
+
+  const stats = Object.values(districtStats);
+  const labels = stats.map(s => s.district);
+  const totals = stats.map(s => s.total);
+
+  document.getElementById("kpiAvg").textContent =
+    stats.length ? Math.round(totals.reduce((a, b) => a + b, 0) / stats.length) : "-";
+
+  document.getElementById("kpiTopDistrict").textContent =
+    stats.length ? labels[totals.indexOf(Math.max(...totals))] : "-";
+
+  const recycle =
+    stats.reduce((sum, d) => sum + d.Plastic + d.Paper + d.Glass + d.Metal, 0);
+  const totalWaste =
+    stats.reduce((sum, d) => sum + d.total, 0);
+
+  document.getElementById("kpiRecycle").textContent =
+    totalWaste ? Math.round((recycle / totalWaste) * 100) + "%" : "-";
+
+  barChart = new Chart(document.getElementById("barChart"), {
+    type: "bar",
+    data: { labels, datasets: [{ data: totals, backgroundColor: "#00a676" }] },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  const weekly = Array(7).fill(0);
+  stats.forEach(d => d.weekly.forEach((v, i) => weekly[i] += v));
+
+  lineChart = new Chart(document.getElementById("lineChart"), {
+    type: "line",
+    data: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      datasets: [{ data: weekly, borderColor: "#006e55", borderWidth: 3, tension: 0.4 }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  pieChart = new Chart(document.getElementById("pieChart"), {
+    type: "pie",
+    data: {
+      labels: ["Plastic", "Paper", "Glass", "Metal", "General", "Bio"],
+      datasets: [{
+        backgroundColor: ["#00C896","#6DFFB8","#D7FF4D","#FFB84C","#73848C","#A77A47"],
+        data: [
+          stats.reduce((s, d) => s + d.Plastic, 0),
+          stats.reduce((s, d) => s + d.Paper, 0),
+          stats.reduce((s, d) => s + d.Glass, 0),
+          stats.reduce((s, d) => s + d.Metal, 0),
+          stats.reduce((s, d) => s + d.General, 0),
+          stats.reduce((s, d) => s + d.Bio, 0)
+        ]
+      }]
+    }
+  });
+}
+
+/* ===========================================================
+   MAP — ALWAYS SHOW ALL DOTS
+=========================================================== */
+function drawMap() {
+  map.eachLayer(l => {
+    if (l instanceof L.CircleMarker) map.removeLayer(l);
+  });
+
+  wasteData.forEach(item => {
+    const { latitude, longitude } = item.geoLocation;
+
+    L.circleMarker([latitude, longitude], {
+      radius: 8,
+      weight: 3,
+      color: "#006e55",
+      fillColor: "#00a676",
+      fillOpacity: 0.75
+    })
+      .addTo(map)
+      .bindPopup(`<b>${item._district}</b><br>${item.wasteType}<br>${item.timestamp}`);
+  });
+}
+
+/* ===========================================================
+   CITY SELECT LISTENER
+=========================================================== */
+document.getElementById("citySelect").addEventListener("change", (e) => {
+  currentCity = e.target.value;
+  updateDashboardForCity();
+});
+
+/* ===========================================================
+   INIT
+=========================================================== */
+(async function init() {
+  map = L.map("map").setView([36.5, 127.9], 7);
+  setMapStyle("light");
+
+  await loadWasteData();
+  await loadPickupRequests();
+
+  renderDashboard(); // all Korea initially
+  drawMap();         // all dots
+  loadRequestsForCity(currentCity);
+
+  setLang("en");
+})();
+
+
+/* ===========================================================
+   INIT PAGE
+=========================================================== */
+
+function downloadCSV() {
+  const rows = wasteData.map(d =>
+    `${d._district},${d.wasteType},${d.timestamp}`
+  ).join("\n");
+
+  const blob = new Blob([rows], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `waste_${currentCity}.csv`;
+  a.click();
+}
+
+function downloadXLSX() {
+  const data = wasteData.map(d => ({
+    district: d._district,
+    wasteType: d.wasteType,
+    timestamp: d.timestamp
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Waste");
+
+  XLSX.writeFile(workbook, `waste_${currentCity}.xlsx`);
+}
+
+
+document.getElementById("downloadCSV").onclick = downloadCSV;
+document.getElementById("downloadXLSX").onclick = downloadXLSX;
+
+</script>
+
+
+
+</body>
+</html>
